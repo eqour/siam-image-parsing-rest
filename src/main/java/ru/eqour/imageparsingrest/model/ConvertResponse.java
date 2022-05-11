@@ -4,8 +4,7 @@ public class ConvertResponse {
 
     private double[][] points;
 
-    public ConvertResponse() {
-    }
+    public ConvertResponse() {}
 
     public ConvertResponse(double[][] points) {
         this.points = points;

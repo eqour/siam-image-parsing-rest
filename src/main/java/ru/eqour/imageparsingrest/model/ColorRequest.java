@@ -1,16 +1,18 @@
 package ru.eqour.imageparsingrest.model;
 
+import java.awt.image.BufferedImage;
+
 public class ColorRequest {
 
-    private String base64Image;
+    private BufferedImage image;
     private double colorDifference;
 
-    public String getBase64Image() {
-        return base64Image;
+    public BufferedImage getImage() {
+        return image;
     }
 
-    public void setBase64Image(String base64Image) {
-        this.base64Image = base64Image;
+    public void setImage(BufferedImage image) {
+        this.image = image;
     }
 
     public double getColorDifference() {

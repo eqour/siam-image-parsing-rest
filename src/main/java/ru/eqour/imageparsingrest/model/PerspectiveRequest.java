@@ -2,14 +2,13 @@ package ru.eqour.imageparsingrest.model;
 
 import org.hibernate.validator.constraints.Range;
 
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.awt.image.BufferedImage;
 
 public class PerspectiveRequest {
 
-    @NotBlank
-    private String base64Image;
+    @NotNull
+    private BufferedImage image;
 
     @NotNull
     private int[][] points;
@@ -49,11 +48,11 @@ public class PerspectiveRequest {
         this.outputHeight = outputHeight;
     }
 
-    public String getBase64Image() {
-        return base64Image;
+    public BufferedImage getImage() {
+        return image;
     }
 
-    public void setBase64Image(String base64Image) {
-        this.base64Image = base64Image;
+    public void setImage(BufferedImage image) {
+        this.image = image;
     }
 }

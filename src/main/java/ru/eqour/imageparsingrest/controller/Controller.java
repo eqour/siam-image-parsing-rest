@@ -5,7 +5,6 @@ import ru.eqour.imageparsing.AxisConverter;
 import ru.eqour.imageparsing.ColorSelector;
 import ru.eqour.imageparsing.DataSmoother;
 import ru.eqour.imageparsing.PerspectiveCorrector;
-import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.model.*;
 
 import javax.validation.Valid;
@@ -18,22 +17,22 @@ public class Controller {
 
     @PostMapping("/perspective")
     public PerspectiveResponse perspective(@Valid @RequestBody PerspectiveRequest request) {
-        BufferedImage inputImage = ImageHelper.convertToImage(request.getBase64Image());
+        BufferedImage inputImage = request.getImage();
         BufferedImage outputImage = PerspectiveCorrector.correct(inputImage, request.getPoints(),
                 request.getOutputWidth(), request.getOutputHeight());
-        return new PerspectiveResponse(ImageHelper.convertToBase64(outputImage));
+        return new PerspectiveResponse(outputImage);
     }
 
     @PostMapping("/color/simple")
     public ColorResponse color(@RequestBody ColorSimpleRequest request) {
-        BufferedImage inputImage = ImageHelper.convertToImage(request.getBase64Image());
+        BufferedImage inputImage = request.getImage();
         int[][] pixels = ColorSelector.select(inputImage, request.getColor(), request.getColorDifference());
         return new ColorResponse(pixels);
     }
 
     @PostMapping("/color/border")
     public ColorResponse color(@RequestBody ColorBorderRequest request) {
-        BufferedImage inputImage = ImageHelper.convertToImage(request.getBase64Image());
+        BufferedImage inputImage = request.getImage();
         int[][] pixels = ColorSelector.select(inputImage, request.getColor(), request.getColorDifference(),
                 request.getMinX(), request.getMinY(), request.getMaxX(), request.getMaxY());
         return new ColorResponse(pixels);
@@ -41,7 +40,7 @@ public class Controller {
 
     @PostMapping("/color/point")
     public ColorResponse color(@RequestBody ColorPointRequest request) {
-        BufferedImage inputImage = ImageHelper.convertToImage(request.getBase64Image());
+        BufferedImage inputImage = request.getImage();
         int[][] pixels = ColorSelector.select(inputImage, request.getX(), request.getY(),
                 request.getColorDifference(), request.getSearchRadius());
         return new ColorResponse(pixels);

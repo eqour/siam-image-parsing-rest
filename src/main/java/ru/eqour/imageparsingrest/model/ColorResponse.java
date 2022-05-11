@@ -4,8 +4,7 @@ public class ColorResponse {
 
     private int[][] pixels;
 
-    public ColorResponse() {
-    }
+    public ColorResponse() {}
 
     public ColorResponse(int[][] pixels) {
         this.pixels = pixels;
