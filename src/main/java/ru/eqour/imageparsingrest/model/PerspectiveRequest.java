@@ -1,25 +1,16 @@
 package ru.eqour.imageparsingrest.model;
 
-import org.hibernate.validator.constraints.Range;
-
-import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 
 public class PerspectiveRequest {
 
-    @NotNull
     private BufferedImage image;
 
-    @NotNull
     private int[][] points;
 
-    @NotNull
-    @Range(min = 1, max = 65536, message = "value must be between 1 and 65536")
-    private int outputWidth;
+    private Integer outputWidth;
 
-    @NotNull
-    @Range(min = 1, max = 65536, message = "value must be between 1 and 65536")
-    private int outputHeight;
+    private Integer outputHeight;
 
     public PerspectiveRequest() {
     }
@@ -32,19 +23,19 @@ public class PerspectiveRequest {
         this.points = points;
     }
 
-    public int getOutputWidth() {
+    public Integer getOutputWidth() {
         return outputWidth;
     }
 
-    public void setOutputWidth(int outputWidth) {
+    public void setOutputWidth(Integer outputWidth) {
         this.outputWidth = outputWidth;
     }
 
-    public int getOutputHeight() {
+    public Integer getOutputHeight() {
         return outputHeight;
     }
 
-    public void setOutputHeight(int outputHeight) {
+    public void setOutputHeight(Integer outputHeight) {
         this.outputHeight = outputHeight;
     }
 

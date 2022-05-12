@@ -2,31 +2,31 @@ package ru.eqour.imageparsingrest.model;
 
 public class ColorPointRequest extends ColorRequest {
 
-    private int x;
-    private int y;
-    private int searchRadius;
+    private Integer x;
+    private Integer y;
+    private Integer searchRadius;
 
-    public int getX() {
+    public Integer getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(Integer x) {
         this.x = x;
     }
 
-    public int getY() {
+    public Integer getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setY(Integer y) {
         this.y = y;
     }
 
-    public int getSearchRadius() {
+    public Integer getSearchRadius() {
         return searchRadius;
     }
 
-    public void setSearchRadius(int searchRadius) {
+    public void setSearchRadius(Integer searchRadius) {
         this.searchRadius = searchRadius;
     }
 }

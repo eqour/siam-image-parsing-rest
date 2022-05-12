@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 public class ColorRequest {
 
     private BufferedImage image;
-    private double colorDifference;
+    private Double colorDifference;
 
     public BufferedImage getImage() {
         return image;
@@ -15,11 +15,11 @@ public class ColorRequest {
         this.image = image;
     }
 
-    public double getColorDifference() {
+    public Double getColorDifference() {
         return colorDifference;
     }
 
-    public void setColorDifference(double colorDifference) {
+    public void setColorDifference(Double colorDifference) {
         this.colorDifference = colorDifference;
     }
 }

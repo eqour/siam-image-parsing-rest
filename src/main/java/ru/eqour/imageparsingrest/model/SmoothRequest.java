@@ -2,14 +2,14 @@ package ru.eqour.imageparsingrest.model;
 
 public class SmoothRequest {
 
-    private int maxIteration;
+    private Integer maxIteration;
     private int[][] points;
 
-    public int getMaxIteration() {
+    public Integer getMaxIteration() {
         return maxIteration;
     }
 
-    public void setMaxIteration(int maxIteration) {
+    public void setMaxIteration(Integer maxIteration) {
         this.maxIteration = maxIteration;
     }
 

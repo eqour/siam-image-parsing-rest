@@ -2,7 +2,7 @@ package ru.eqour.imageparsingrest.model;
 
 import java.awt.*;
 
-public class ColorSimpleRequest extends ColorRequest {
+public class ColorEntireRequest extends ColorRequest {
 
     private Color color;
 

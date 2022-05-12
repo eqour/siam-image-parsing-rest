@@ -3,14 +3,14 @@ package ru.eqour.imageparsingrest.model;
 public class ConvertRequest {
 
     private double[][] points;
-    private double srcSX;
-    private double srcSY;
-    private double srcEX;
-    private double srcEY;
-    private double dstSX;
-    private double dstSY;
-    private double dstEX;
-    private double dstEY;
+    private Double srcSX;
+    private Double srcSY;
+    private Double srcEX;
+    private Double srcEY;
+    private Double dstSX;
+    private Double dstSY;
+    private Double dstEX;
+    private Double dstEY;
 
     public double[][] getPoints() {
         return points;
@@ -20,67 +20,67 @@ public class ConvertRequest {
         this.points = points;
     }
 
-    public double getSrcSX() {
+    public Double getSrcSX() {
         return srcSX;
     }
 
-    public void setSrcSX(double srcSX) {
+    public void setSrcSX(Double srcSX) {
         this.srcSX = srcSX;
     }
 
-    public double getSrcSY() {
+    public Double getSrcSY() {
         return srcSY;
     }
 
-    public void setSrcSY(double srcSY) {
+    public void setSrcSY(Double srcSY) {
         this.srcSY = srcSY;
     }
 
-    public double getSrcEX() {
+    public Double getSrcEX() {
         return srcEX;
     }
 
-    public void setSrcEX(double srcEX) {
+    public void setSrcEX(Double srcEX) {
         this.srcEX = srcEX;
     }
 
-    public double getSrcEY() {
+    public Double getSrcEY() {
         return srcEY;
     }
 
-    public void setSrcEY(double srcEY) {
+    public void setSrcEY(Double srcEY) {
         this.srcEY = srcEY;
     }
 
-    public double getDstSX() {
+    public Double getDstSX() {
         return dstSX;
     }
 
-    public void setDstSX(double dstSX) {
+    public void setDstSX(Double dstSX) {
         this.dstSX = dstSX;
     }
 
-    public double getDstSY() {
+    public Double getDstSY() {
         return dstSY;
     }
 
-    public void setDstSY(double dstSY) {
+    public void setDstSY(Double dstSY) {
         this.dstSY = dstSY;
     }
 
-    public double getDstEX() {
+    public Double getDstEX() {
         return dstEX;
     }
 
-    public void setDstEX(double dstEX) {
+    public void setDstEX(Double dstEX) {
         this.dstEX = dstEX;
     }
 
-    public double getDstEY() {
+    public Double getDstEY() {
         return dstEY;
     }
 
-    public void setDstEY(double dstEY) {
+    public void setDstEY(Double dstEY) {
         this.dstEY = dstEY;
     }
 }
