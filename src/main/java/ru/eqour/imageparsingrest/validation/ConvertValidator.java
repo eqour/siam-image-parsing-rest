@@ -1,11 +1,13 @@
 package ru.eqour.imageparsingrest.validation;
 
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.eqour.imageparsingrest.model.ConvertRequest;
 
 import java.util.Arrays;
 
+@Component
 public class ConvertValidator implements Validator {
 
     @Override

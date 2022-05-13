@@ -1,8 +1,10 @@
 package ru.eqour.imageparsingrest.validation;
 
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import ru.eqour.imageparsingrest.model.ColorEntireRequest;
 
+@Component
 public class ColorEntireValidator extends ColorValidator {
 
     @Override

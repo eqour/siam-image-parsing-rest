@@ -1,5 +1,6 @@
 package ru.eqour.imageparsingrest.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,7 @@ import ru.eqour.imageparsing.ColorSelector;
 import ru.eqour.imageparsing.DataSmoother;
 import ru.eqour.imageparsing.PerspectiveCorrector;
 import ru.eqour.imageparsingrest.model.*;
+import ru.eqour.imageparsingrest.service.ImageDataCacheService;
 import ru.eqour.imageparsingrest.validation.*;
 
 import javax.validation.Valid;
@@ -16,29 +18,46 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @RequestMapping("/")
 public class Controller {
+
+    private final AtomicLong counter = new AtomicLong();
+    private final ImageDataCacheService imageService;
+    private final ColorAreaValidator colorAreaValidator;
+    private final ColorPointValidator colorPointValidator;
+
+    @Autowired
+    public Controller(ImageDataCacheService imageService,
+                      ColorAreaValidator colorAreaValidator, ColorPointValidator colorPointValidator) {
+        this.imageService = imageService;
+        this.colorAreaValidator = colorAreaValidator;
+        this.colorPointValidator = colorPointValidator;
+    }
+
 
     @PostMapping("/perspective")
     public PerspectiveResponse perspective(@Valid @RequestBody PerspectiveRequest request) {
         BufferedImage inputImage = request.getImage();
         BufferedImage outputImage = PerspectiveCorrector.correct(inputImage, request.getPoints(),
                 request.getOutputWidth(), request.getOutputHeight());
-        return new PerspectiveResponse(outputImage);
+        long imageId = counter.incrementAndGet();
+        imageService.saveImage(imageId, outputImage);
+        return new PerspectiveResponse(imageId, outputImage);
     }
 
     @PostMapping("/color/entire")
     public ColorResponse color(@Valid @RequestBody ColorEntireRequest request) {
-        BufferedImage inputImage = request.getImage();
+        BufferedImage inputImage = imageService.getImageById(request.getImageId());
         int[][] pixels = ColorSelector.select(inputImage, request.getColor(), request.getColorDifference());
         return new ColorResponse(pixels);
     }
 
     @PostMapping("/color/area")
     public ColorResponse color(@Valid @RequestBody ColorAreaRequest request) {
-        BufferedImage inputImage = request.getImage();
+        BufferedImage inputImage = imageService.getImageById(request.getImageId());
         int[][] pixels = ColorSelector.select(inputImage, request.getColor(), request.getColorDifference(),
                 request.getMinX(), request.getMinY(), request.getMaxX(), request.getMaxY());
         return new ColorResponse(pixels);
@@ -46,7 +65,7 @@ public class Controller {
 
     @PostMapping("/color/point")
     public ColorResponse color(@Valid @RequestBody ColorPointRequest request) {
-        BufferedImage inputImage = request.getImage();
+        BufferedImage inputImage = imageService.getImageById(request.getImageId());
         int[][] pixels = ColorSelector.select(inputImage, request.getX(), request.getY(),
                 request.getColorDifference(), request.getSearchRadius());
         return new ColorResponse(pixels);
@@ -78,8 +97,8 @@ public class Controller {
                 new PerspectiveValidator(),
                 new ColorValidator(),
                 new ColorEntireValidator(),
-                new ColorAreaValidator(),
-                new ColorPointValidator(),
+                colorAreaValidator,
+                colorPointValidator,
                 new SmoothValidator(),
                 new ConvertValidator()
         ));

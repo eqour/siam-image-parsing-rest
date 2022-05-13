@@ -1,11 +1,22 @@
 package ru.eqour.imageparsingrest.validation;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import ru.eqour.imageparsingrest.model.ColorPointRequest;
+import ru.eqour.imageparsingrest.service.ImageDataCacheService;
 
 import java.awt.image.BufferedImage;
 
+@Component
 public class ColorPointValidator extends ColorValidator {
+
+    private final ImageDataCacheService imageService;
+
+    @Autowired
+    public ColorPointValidator(ImageDataCacheService imageService) {
+        this.imageService = imageService;
+    }
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -33,7 +44,8 @@ public class ColorPointValidator extends ColorValidator {
             errors.rejectValue("y", "", "значение должно быть не меньше 0");
         }
 
-        BufferedImage image = request.getImage();
+        BufferedImage image = request.getImageId() == null ? null : imageService.getImageById(request.getImageId());
+
         if (image != null && x != null && x >= image.getWidth())
             errors.rejectValue("x", "", "значение должно быть меньше ширины изображения");
 

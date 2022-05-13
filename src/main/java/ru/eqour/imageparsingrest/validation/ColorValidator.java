@@ -1,11 +1,11 @@
 package ru.eqour.imageparsingrest.validation;
 
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.eqour.imageparsingrest.model.ColorRequest;
 
-import java.awt.image.BufferedImage;
-
+@Component
 public class ColorValidator implements Validator {
 
     @Override
@@ -24,11 +24,11 @@ public class ColorValidator implements Validator {
             errors.rejectValue("colorDifference", "", "значение должно быть не меньше 0");
         }
 
-        BufferedImage image = request.getImage();
-        if (image == null) {
-            errors.rejectValue("image", "", "значение не должно быть null");
-        } else if (image.getWidth() > 65536 || image.getHeight() > 65536) {
-            errors.rejectValue("image", "", "изображение не должно быть больше 65536 пикселей в ширину или высоту");
+        Long imageId = request.getImageId();
+        if (imageId == null) {
+            errors.rejectValue("imageId", "", "значение не должно быть null");
+        } else if (imageId < 0) {
+            errors.rejectValue("imageId", "", "значение должно быть не меньше 0");
         }
     }
 }
