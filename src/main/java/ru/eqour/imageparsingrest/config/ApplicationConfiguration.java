@@ -1,4 +1,4 @@
-package ru.eqour.imageparsingrest.controller.config;
+package ru.eqour.imageparsingrest.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;

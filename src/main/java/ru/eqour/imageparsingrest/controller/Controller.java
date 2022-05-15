@@ -8,6 +8,7 @@ import ru.eqour.imageparsing.AxisConverter;
 import ru.eqour.imageparsing.ColorSelector;
 import ru.eqour.imageparsing.DataSmoother;
 import ru.eqour.imageparsing.PerspectiveCorrector;
+import ru.eqour.imageparsingrest.helper.ConvertHelper;
 import ru.eqour.imageparsingrest.model.*;
 import ru.eqour.imageparsingrest.service.ImageDataCacheService;
 import ru.eqour.imageparsingrest.validation.*;
@@ -78,16 +79,48 @@ public class Controller {
         return new SmoothResponse(smoothingResult.getKey(), smoothingResult.getValue());
     }
 
-    @PostMapping("/convert")
-    public ConvertResponse convert(@Valid @RequestBody ConvertRequest request) {
-        double[][] originalPoints = request.getPoints();
-        double[][] points = new double[request.getPoints().length][];
-        for (int i = 0; i < points.length; i++) {
-            points[i] = AxisConverter.convert(originalPoints[i],
-                    request.getSrcSX(), request.getSrcSY(), request.getSrcEX(), request.getSrcEY(),
-                    request.getDstSX(), request.getDstSY(), request.getDstEX(), request.getDstEY());
-        }
-        return new ConvertResponse(points);
+    @PostMapping("/convert/area")
+    public ConvertResponse convert(@Valid @RequestBody ConvertAreaRequest request) {
+        return new ConvertResponse(ConvertHelper.processPoints(request.getPoints(),
+                p -> AxisConverter.convert(p,
+                        request.getSrcSX(), request.getSrcSY(), request.getSrcEX(), request.getSrcEY(),
+                        request.getDstSX(), request.getDstSY(), request.getDstEX(), request.getDstEY()))
+        );
+    }
+
+    @PostMapping("/convert/invertAxisY")
+    public ConvertResponse convertInvertAxisY(@Valid @RequestBody ConvertInvertAxisRequest request) {
+        return new ConvertResponse(ConvertHelper.processPoints(request.getPoints(),
+                p -> AxisConverter.invertAxisY(p, request.getInvertedAxisPosition()))
+        );
+    }
+
+    @PostMapping("/convert/invertAxisX")
+    public ConvertResponse convertInvertAxisX(@Valid @RequestBody ConvertInvertAxisRequest request) {
+        return new ConvertResponse(ConvertHelper.processPoints(request.getPoints(),
+                p -> AxisConverter.invertAxisX(p, request.getInvertedAxisPosition()))
+        );
+    }
+
+    @PostMapping("/convert/transfer")
+    public ConvertResponse convertTransfer(@Valid @RequestBody ConvertModifyRequest request) {
+        return new ConvertResponse(ConvertHelper.processPoints(request.getPoints(),
+                p -> AxisConverter.parallelTransfer(p, request.getDx(), request.getDy()))
+        );
+    }
+
+    @PostMapping("/convert/invert")
+    public ConvertResponse convertStretch(@Valid @RequestBody ConvertInvertRequest request) {
+        return new ConvertResponse(ConvertHelper.processPoints(request.getPoints(),
+                p -> AxisConverter.invert(p, request.getInvertByX(), request.getInvertByY()))
+        );
+    }
+
+    @PostMapping("/convert/stretch")
+    public ConvertResponse convertStretch(@Valid @RequestBody ConvertModifyRequest request) {
+        return new ConvertResponse(ConvertHelper.processPoints(request.getPoints(),
+                p -> AxisConverter.stretch(p, request.getDx(), request.getDy()))
+        );
     }
 
     @InitBinder
@@ -100,7 +133,11 @@ public class Controller {
                 colorAreaValidator,
                 colorPointValidator,
                 new SmoothValidator(),
-                new ConvertValidator()
+                new ConvertValidator(),
+                new ConvertAreaValidator(),
+                new ConvertInvertAxisValidator(),
+                new ConvertInvertValidator(),
+                new ConvertModifyValidator()
         ));
         for (Validator validator : validators) {
             if (validator.supports(binder.getTarget().getClass()))
