@@ -5,6 +5,14 @@ public class SmoothRequest {
     private Integer maxIteration;
     private int[][] points;
 
+    public SmoothRequest() {
+    }
+
+    public SmoothRequest(Integer maxIteration, int[][] points) {
+        this.maxIteration = maxIteration;
+        this.points = points;
+    }
+
     public Integer getMaxIteration() {
         return maxIteration;
     }
