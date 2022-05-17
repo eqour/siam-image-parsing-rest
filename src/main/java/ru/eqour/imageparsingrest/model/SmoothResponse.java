@@ -5,7 +5,8 @@ public class SmoothResponse {
     private int iteration;
     private int[][] points;
 
-    public SmoothResponse() {}
+    public SmoothResponse() {
+    }
 
     public SmoothResponse(int iteration, int[][] points) {
         this.iteration = iteration;

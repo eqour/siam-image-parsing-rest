@@ -7,7 +7,8 @@ public class PerspectiveResponse {
     private long imageId;
     private BufferedImage image;
 
-    public PerspectiveResponse() {}
+    public PerspectiveResponse() {
+    }
 
     public PerspectiveResponse(long imageId, BufferedImage base64Image) {
         this.imageId = imageId;

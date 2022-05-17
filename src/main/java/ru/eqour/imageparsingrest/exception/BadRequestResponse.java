@@ -5,7 +5,8 @@ import java.util.Map;
 public class BadRequestResponse extends ErrorResponse {
     private Map<String, String> fields;
 
-    public BadRequestResponse() {}
+    public BadRequestResponse() {
+    }
 
     public BadRequestResponse(String message, Map<String, String> fields) {
         super(message);

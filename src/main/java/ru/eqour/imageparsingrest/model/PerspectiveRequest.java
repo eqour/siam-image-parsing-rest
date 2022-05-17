@@ -15,6 +15,13 @@ public class PerspectiveRequest {
     public PerspectiveRequest() {
     }
 
+    public PerspectiveRequest(BufferedImage image, int[][] points, Integer outputWidth, Integer outputHeight) {
+        this.image = image;
+        this.points = points;
+        this.outputWidth = outputWidth;
+        this.outputHeight = outputHeight;
+    }
+
     public int[][] getPoints() {
         return points;
     }
