@@ -38,6 +38,12 @@ public class Controller {
         this.colorPointValidator = colorPointValidator;
     }
 
+    @PostMapping("/image")
+    public ImageResponse image(@Valid @RequestBody ImageRequest request) {
+        long imageId = counter.incrementAndGet();
+        imageService.saveImage(imageId, request.getImage());
+        return new ImageResponse(imageId);
+    }
 
     @PostMapping("/perspective")
     public PerspectiveResponse perspective(@Valid @RequestBody PerspectiveRequest request) {
@@ -127,6 +133,7 @@ public class Controller {
     private void bindValidator(WebDataBinder binder) {
         if (binder.getTarget() == null) return;
         List<Validator> validators = new ArrayList<>(Arrays.asList(
+                new ImageValidator(),
                 new PerspectiveValidator(),
                 new ColorValidator(),
                 new ColorEntireValidator(),

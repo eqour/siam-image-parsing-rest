@@ -62,7 +62,8 @@ public class SmoothTest {
 			ResponseEntity<String> response = restTemplate.exchange(
 					"/smooth",
 					HttpMethod.POST,
-					new HttpEntity<>(new SmoothRequest(maxIteration, points)), String.class
+					new HttpEntity<>(new SmoothRequest(maxIteration, points)),
+					String.class
 			);
 			assertThat(response.getStatusCode().is4xxClientError()).isTrue();
 		}

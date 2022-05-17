@@ -10,9 +10,11 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.eqour.imageparsingrest.serialization.ColorSerializer;
 import ru.eqour.imageparsingrest.serialization.ImageDeserializer;
 import ru.eqour.imageparsingrest.serialization.ImageSerializer;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 
@@ -25,6 +27,7 @@ public class ApplicationConfiguration {
         SimpleModule module = new SimpleModule();
         module.addSerializer(BufferedImage.class, new ImageSerializer());
         module.addDeserializer(BufferedImage.class, new ImageDeserializer());
+        module.addSerializer(Color.class, new ColorSerializer());
         mapper.registerModule(module);
         return mapper;
     }
