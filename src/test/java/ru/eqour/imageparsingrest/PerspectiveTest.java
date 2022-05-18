@@ -15,7 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
-import ru.eqour.imageparsingrest.helper.ImageTestHelper;
+import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.PerspectiveRequest;
 import ru.eqour.imageparsingrest.model.PerspectiveResponse;
 
@@ -38,10 +38,10 @@ public class PerspectiveTest {
 
         private final BufferedImage inputImage;
         private final int[][] points;
-        private final int[] requiredSize;
+        private final Integer[] requiredSize;
 
-        public NegativeParameterizedTests(int imageId, int[][] points, int[] requiredSize) {
-            ImageTestHelper helper = new ImageTestHelper();
+        public NegativeParameterizedTests(int imageId, int[][] points, Integer[] requiredSize) {
+            TestHelper helper = new TestHelper();
             if (imageId < 0) this.inputImage = null;
             else this.inputImage = helper.loadBufferedImageFromResources("pct-input-" + imageId + ".png");
             this.points = points;
@@ -51,20 +51,23 @@ public class PerspectiveTest {
         @Parameterized.Parameters
         public static Object[][] getParameters() {
             return new Object[][] {
-                    { -1, null, new int[] {1, 1} },
-                    { -1, new int[0][0], new int[] {1, 1} },
-                    { 0, null, new int[] {1, 1} },
-                    { 0, new int[0][0], new int[] {1, 1} },
-                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 } }, new int[] {1, 1} },
-                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 } }, new int[] {1, 1} },
-                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1 }, { 0, 1 } }, new int[] {1, 1} },
-                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 2, 1 }, { 0, 1 } }, new int[] {1, 1} },
-                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, null, { 1, 1 } }, new int[] {1, 1} },
-                    { 0, new int[][] { { 0, 0 }, { 1, 1 }, { 1, 0 }, { 1, 1 } }, new int[] {1, 1} },
-                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[] {65537, 1} },
-                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[] {1, -1} },
-                    { 0, new int[][] { { 3, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[] {1, 1} },
-                    { 0, new int[][] { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new int[] {1, 1} }
+                    { -1, null, new Integer[] { 1, 1 } },
+                    { -1, new int[0][0], new Integer[] { 1, 1 } },
+                    { 0, null, new Integer[] { 1, 1 } },
+                    { 0, new int[0][0], new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 } }, new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 }, { 2, 0 } }, new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1 }, { 0, 1 } }, new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 2, 1 }, { 0, 1 } }, new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, null, { 1, 1 } }, new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 1, 1 }, { 1, 0 }, { 1, 1 } }, new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new Integer[] { 65537, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new Integer[] { 1, -1 } },
+                    { 0, new int[][] { { 3, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } }, new Integer[] { 1, 1 } },
+                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new Integer[] { null, 3 } },
+                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new Integer[] { 3, null } },
+                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new Integer[] { null, null } }
             };
         }
 
@@ -94,10 +97,10 @@ public class PerspectiveTest {
         private final BufferedImage inputImage;
         private final BufferedImage outputImage;
         private final int[][] points;
-        private final int[] requiredSize;
+        private final Integer[] requiredSize;
 
-        public PositiveParameterizedTests(int imageId, int[][] points, int[] requiredSize) {
-            ImageTestHelper helper = new ImageTestHelper();
+        public PositiveParameterizedTests(int imageId, int[][] points, Integer[] requiredSize) {
+            TestHelper helper = new TestHelper();
             if (imageId < 0) {
                 this.inputImage = this.outputImage = null;
             } else {
@@ -111,13 +114,13 @@ public class PerspectiveTest {
         @Parameterized.Parameters
         public static Object[][] getParameters() {
             return new Object[][] {
-                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new int[] {3, 3} },
-                    { 1, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new int[] {2, 7} },
-                    { 2, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new int[] {8, 4} },
-                    { 3, new int[][] { { 0, 4 }, { 9, 0 }, { 9, 9 }, { 0, 5 } }, new int[] {10, 10} },
-                    { 4, new int[][] { { 0, 4 }, { 9, 0 }, { 9, 9 }, { 0, 5 } }, new int[] {10, 10} },
-                    { 5, new int[][] { { 0, 0 }, { 15, 0 }, { 10, 13 }, { 5, 13 } }, new int[] {5, 5} },
-                    { 6, new int[][] { { 0, 7 }, { 7, 0 }, { 7, 7 }, { 0, 0 } }, new int[] {8, 8} }
+                    { 0, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new Integer[] { 3, 3 } },
+                    { 1, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new Integer[] { 2, 7 } },
+                    { 2, new int[][] { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } }, new Integer[] { 8, 4 } },
+                    { 3, new int[][] { { 0, 4 }, { 9, 0 }, { 9, 9 }, { 0, 5 } }, new Integer[] { 10, 10 } },
+                    { 4, new int[][] { { 0, 4 }, { 9, 0 }, { 9, 9 }, { 0, 5 } }, new Integer[] { 10, 10 } },
+                    { 5, new int[][] { { 0, 0 }, { 15, 0 }, { 10, 13 }, { 5, 13 } }, new Integer[] { 5, 5 } },
+                    { 6, new int[][] { { 0, 7 }, { 7, 0 }, { 7, 7 }, { 0, 0 } }, new Integer[] { 8, 8 } }
             };
         }
 
@@ -134,7 +137,7 @@ public class PerspectiveTest {
                 PerspectiveResponse r = mapper.readValue(response.getBody(), PerspectiveResponse.class);
                 assertThat(r).isNotNull();
                 assertThat(r.getImageId()).isNotNull();
-                assertThat(ImageTestHelper.compareBufferedImages(r.getImage(), outputImage)).isTrue();
+                assertThat(TestHelper.compareBufferedImages(r.getImage(), outputImage)).isTrue();
             } catch (JsonProcessingException e) {
                 fail(e.getMessage());
             }

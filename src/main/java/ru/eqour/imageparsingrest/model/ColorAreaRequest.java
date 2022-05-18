@@ -1,11 +1,24 @@
 package ru.eqour.imageparsingrest.model;
 
+import java.awt.*;
+
 public class ColorAreaRequest extends ColorEntireRequest {
 
     private Integer minX;
     private Integer minY;
     private Integer maxX;
     private Integer maxY;
+
+    public ColorAreaRequest() {
+    }
+
+    public ColorAreaRequest(Long image, Double colorDifference, Color color, Integer minX, Integer minY, Integer maxX, Integer maxY) {
+        super(image, colorDifference, color);
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+    }
 
     public Integer getMinX() {
         return minX;

@@ -6,6 +6,16 @@ public class ColorPointRequest extends ColorRequest {
     private Integer y;
     private Integer searchRadius;
 
+    public ColorPointRequest() {
+    }
+
+    public ColorPointRequest(Long imageId, Double colorDifference, Integer x, Integer y, Integer searchRadius) {
+        super(imageId, colorDifference);
+        this.x = x;
+        this.y = y;
+        this.searchRadius = searchRadius;
+    }
+
     public Integer getX() {
         return x;
     }

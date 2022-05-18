@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 @RunWith(Enclosed.class)
-public class ColorEntireTest {
+public class ColorPointTest {
 
     @RunWith(Parameterized.class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -38,32 +38,36 @@ public class ColorEntireTest {
         private TestRestTemplate restTemplate;
 
         private final BufferedImage image;
-        private final Color color;
+        private final Integer[] startPoint;
         private final Double colorDifference;
+        private final Integer searchRadius;
 
-        public NegativeParameterizedTests(int imageId, Color color, Double colorDifference) {
+        public NegativeParameterizedTests(int imageId, Integer[] startPoint,
+                                          Double colorDifference, Integer searchRadius) {
             TestHelper helper = new TestHelper();
-            if (imageId < 0) {
-                this.image = null;
-            } else {
-                this.image = helper.loadBufferedImageFromResources("ColorSelectorTest-input-" + imageId + ".png");
-            }
-            this.color = color;
+            if (imageId < 0) this.image = null;
+            else this.image = helper.loadBufferedImageFromResources("ColorSelectorTest-input-" + imageId + ".png");
+            this.startPoint = startPoint;
             this.colorDifference = colorDifference;
+            this.searchRadius = searchRadius;
         }
 
         @Parameterized.Parameters
         public static Object[][] getParameters() {
             return new Object[][] {
-                    { -1, Color.BLACK, 10.0 },
-                    { 0, null, 10.0 },
-                    { 0, Color.BLACK, -1.0 },
-                    { 0, Color.BLACK, null }
+                    { -1, new Integer[] { 0, 0 }, 0.0, 1 },
+                    { 0, new Integer[] { -5, 0 }, 0.0, 1 },
+                    { 0, new Integer[] { 20, 0 }, 0.0, 1 },
+                    { 0, new Integer[] { 0, 0 }, -1.0, 1 },
+                    { 0, new Integer[] { null, 0 }, 0.0, 1 },
+                    { 0, new Integer[] { 0, null }, 0.0, 1 },
+                    { 0, new Integer[] { 0, 0 }, null, 1 },
+                    { 0, new Integer[] { 0, 0 }, 0.0, null }
             };
         }
 
         @Test
-        public void colorEntireTest() {
+        public void colorPointTest() {
             ResponseEntity<ImageResponse> imageResponse = null;
             if (image != null) {
                 imageResponse = restTemplate.exchange(
@@ -74,14 +78,15 @@ public class ColorEntireTest {
                 );
             }
             ResponseEntity<String> response = restTemplate.exchange(
-                    "/color/entire",
+                    "/color/point",
                     HttpMethod.POST,
                     new HttpEntity<>(
-                            new ColorEntireRequest(
+                            new ColorPointRequest(
                                     image == null ? Long.MAX_VALUE
                                             : Objects.requireNonNull(imageResponse.getBody()).getImageId(),
                                     colorDifference,
-                                    color
+                                    startPoint[0], startPoint[1],
+                                    searchRadius
                             )
                     ),
                     String.class
@@ -102,45 +107,66 @@ public class ColorEntireTest {
         private TestRestTemplate restTemplate;
 
         private final BufferedImage image;
-        private final Color color;
+        private final Integer[] startPoint;
         private final Double colorDifference;
-        private final int[][] pixels;
+        private final Integer searchRadius;
 
-        public PositiveParameterizedTests(int imageId, Color color, Double colorDifference, int[][] pixels) {
+        public PositiveParameterizedTests(int imageId, Integer[] startPoint, Double colorDifference,
+                                          Integer searchRadius) {
             TestHelper helper = new TestHelper();
-            if (imageId < 0) this.image = null;
-            else this.image = helper.loadBufferedImageFromResources("ColorSelectorTest-input-" + imageId + ".png");
-            this.color = color;
+            if (imageId < 0) {
+                this.image = null;
+            } else {
+                this.image = helper.loadBufferedImageFromResources("ColorSelectorTest-input-" + imageId + ".png");
+            }
+            this.startPoint = startPoint;
             this.colorDifference = colorDifference;
-            this.pixels = pixels;
+            this.searchRadius = searchRadius;
         }
 
         @Parameterized.Parameters
         public static Object[][] getParameters() {
             return new Object[][] {
-                    { 1, Color.RED, 0.0, new int[][] { { 0, 0 }, { 0, 4 }, { 2, 2 }, { 4, 0 }, { 4, 4 } } },
-                    { 2, Color.RED, 0.0, new int[][] {} },
-                    { 3, Color.RED, 2.0, new int[][] { { 0, 0 }, { 0, 1 }, { 0, 2 } } },
-                    { 3, Color.RED, 4.0, new int[][] { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 } } }
+                    { 1, new Integer[] { 2, 2 }, 0.0, 3 },
+                    { 2, new Integer[] { 2, 2 }, 0.0, 3 },
+                    { 2, new Integer[] { 2, 2 }, 1.0, 3 },
+                    { 3, new Integer[] { 0, 0 }, 0.0, 1 },
+                    { 3, new Integer[] { 0, 0 }, 1.0, 1 },
+                    { 3, new Integer[] { 0, 0 }, 4.0, 1 },
+                    { 4, new Integer[] { 40, 49 }, 0.0, 15 },
+                    { 4, new Integer[] { 40, 49 }, 200.0, 10 }
             };
         }
 
         @Test
-        public void colorEntireTest() {
+        public void colorPointTest() {
             ResponseEntity<ImageResponse> imageResponse = restTemplate.exchange(
                     "/image",
                     HttpMethod.POST,
                     new HttpEntity<>(new ImageRequest(image)),
                     ImageResponse.class
             );
-            ResponseEntity<String> response = restTemplate.exchange(
+            ResponseEntity<ColorResponse> entireResponse = restTemplate.exchange(
                     "/color/entire",
                     HttpMethod.POST,
                     new HttpEntity<>(
                             new ColorEntireRequest(
                                     Objects.requireNonNull(imageResponse.getBody()).getImageId(),
                                     colorDifference,
-                                    color
+                                    new Color(image.getRGB(startPoint[0], startPoint[1]))
+                            )
+                    ),
+                    ColorResponse.class
+            );
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "/color/point",
+                    HttpMethod.POST,
+                    new HttpEntity<>(
+                            new ColorPointRequest(
+                                    Objects.requireNonNull(imageResponse.getBody()).getImageId(),
+                                    colorDifference,
+                                    startPoint[0], startPoint[1],
+                                    searchRadius
                             )
                     ),
                     String.class
@@ -149,7 +175,9 @@ public class ColorEntireTest {
                 assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
                 ColorResponse r = mapper.readValue(response.getBody(), ColorResponse.class);
                 assertThat(r).isNotNull();
-                assertThat(TestHelper.sortMinXMinY(r.getPixels())).isDeepEqualTo(pixels);
+                int[][] actual = TestHelper.sortMinXMinY(r.getPixels());
+                int[][] expected = TestHelper.sortMinXMinY(Objects.requireNonNull(entireResponse.getBody()).getPixels());
+                assertThat(actual).isDeepEqualTo(expected);
             } catch (JsonProcessingException e) {
                 fail(e.getMessage());
             }

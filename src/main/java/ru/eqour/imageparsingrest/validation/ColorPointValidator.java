@@ -31,6 +31,8 @@ public class ColorPointValidator extends ColorValidator {
 
         Integer x = request.getX();
         Integer y = request.getY();
+        Integer radius = request.getSearchRadius();
+        BufferedImage image = request.getImageId() == null ? null : imageService.getImageById(request.getImageId());
 
         if (x == null) {
             errors.rejectValue("x", "", "значение не должно быть null");
@@ -44,7 +46,11 @@ public class ColorPointValidator extends ColorValidator {
             errors.rejectValue("y", "", "значение должно быть не меньше 0");
         }
 
-        BufferedImage image = request.getImageId() == null ? null : imageService.getImageById(request.getImageId());
+        if (radius == null) {
+            errors.rejectValue("searchRadius", "", "значение не должно быть null");
+        } else if (radius <= 0) {
+            errors.rejectValue("searchRadius", "", "значение должно быть больше 0");
+        }
 
         if (image != null && x != null && x >= image.getWidth())
             errors.rejectValue("x", "", "значение должно быть меньше ширины изображения");

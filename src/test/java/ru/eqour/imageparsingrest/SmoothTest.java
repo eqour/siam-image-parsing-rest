@@ -96,7 +96,7 @@ public class SmoothTest {
 		@Parameterized.Parameters
 		public static Object[][] getParameters() {
 			return new Object[][] {
-					{ new int[0][0], new int[0][0], 5, 1},
+					{ new int[0][0], new int[0][0], 5, 1 },
 					{ new int[][] { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 0 }, { 1, 1 }, { 1, 2 }, { 2, 0 }, { 2, 1 }, { 2, 2 } }, new int[][] { { 1, 1 } }, 1, 1 },
 					{ new int[][] { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 0 }, { 1, 1 }, { 1, 2 }, { 2, 0 }, { 2, 1 }, { 2, 2 } }, new int[][] { { 1, 1 } }, 2, 2 },
 					{ new int[][] { { 0, 0 }, { 0, 1 }, { 0, 2 }, { 1, 0 }, { 1, 1 }, { 1, 2 }, { 2, 0 }, { 2, 1 }, { 2, 2 } }, new int[][] { { 1, 1 } }, 3, 2 }

@@ -5,8 +5,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Comparator;
 
-public class ImageTestHelper {
+public class TestHelper {
 
     public BufferedImage loadBufferedImageFromResources(String name) {
         try {
@@ -38,5 +40,12 @@ public class ImageTestHelper {
             return false;
         }
         return true;
+    }
+
+    public static int[][] sortMinXMinY(int[][] values) {
+        return Arrays.stream(values)
+                .sorted(Comparator.comparing((int[] p) -> p[0])
+                        .thenComparing(p -> p[1]))
+                .toArray(int[][]::new);
     }
 }
