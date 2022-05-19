@@ -116,7 +116,7 @@ public class Controller {
     }
 
     @PostMapping("/convert/invert")
-    public ConvertResponse convertStretch(@Valid @RequestBody ConvertInvertRequest request) {
+    public ConvertResponse convertInvert(@Valid @RequestBody ConvertInvertRequest request) {
         return new ConvertResponse(ConvertHelper.processPoints(request.getPoints(),
                 p -> AxisConverter.invert(p, request.getInvertByX(), request.getInvertByY()))
         );

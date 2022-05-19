@@ -4,6 +4,14 @@ public class ConvertInvertAxisRequest extends ConvertRequest {
 
     private Double invertedAxisPosition;
 
+    public ConvertInvertAxisRequest() {
+    }
+
+    public ConvertInvertAxisRequest(double[][] points, Double invertedAxisPosition) {
+        super(points);
+        this.invertedAxisPosition = invertedAxisPosition;
+    }
+
     public Double getInvertedAxisPosition() {
         return invertedAxisPosition;
     }

@@ -4,6 +4,13 @@ public class ConvertRequest {
 
     private double[][] points;
 
+    public ConvertRequest() {
+    }
+
+    public ConvertRequest(double[][] points) {
+        this.points = points;
+    }
+
     public double[][] getPoints() {
         return points;
     }

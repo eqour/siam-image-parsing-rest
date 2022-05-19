@@ -11,6 +11,23 @@ public class ConvertAreaRequest extends ConvertRequest {
     private Double dstEX;
     private Double dstEY;
 
+    public ConvertAreaRequest() {
+    }
+
+    public ConvertAreaRequest(double[][] points,
+                              Double srcSX, Double srcSY, Double srcEX, Double srcEY,
+                              Double dstSX, Double dstSY, Double dstEX, Double dstEY) {
+        super(points);
+        this.srcSX = srcSX;
+        this.srcSY = srcSY;
+        this.srcEX = srcEX;
+        this.srcEY = srcEY;
+        this.dstSX = dstSX;
+        this.dstSY = dstSY;
+        this.dstEX = dstEX;
+        this.dstEY = dstEY;
+    }
+
     public Double getSrcSX() {
         return srcSX;
     }
