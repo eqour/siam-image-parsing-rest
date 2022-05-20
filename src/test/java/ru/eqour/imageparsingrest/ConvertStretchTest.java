@@ -16,14 +16,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import ru.eqour.imageparsingrest.helper.TestHelper;
-import ru.eqour.imageparsingrest.model.ConvertInvertRequest;
+import ru.eqour.imageparsingrest.model.ConvertModifyRequest;
 import ru.eqour.imageparsingrest.model.ConvertResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 @RunWith(Enclosed.class)
-public class ConvertInvertTest {
+public class ConvertStretchTest {
 
     private static final double DELTA = 0.005;
 
@@ -37,33 +37,32 @@ public class ConvertInvertTest {
         private TestRestTemplate restTemplate;
 
         private final double[][] inputPoints;
-        private final Boolean invertByX;
-        private final Boolean invertByY;
+        private final Double dx;
+        private final Double dy;
 
-        public NegativeParameterizedTests(double[][] inputPoints, Boolean invertByX, Boolean invertByY) {
+        public NegativeParameterizedTests(double[][] inputPoints, Double dx, Double dy) {
             this.inputPoints = inputPoints;
-            this.invertByX = invertByX;
-            this.invertByY = invertByY;
+            this.dx = dx;
+            this.dy = dy;
         }
 
         @Parameterized.Parameters
         public static Object[][] getParameters() {
             return new Object[][] {
-                    { null, false, false },
-                    { new double[][] { { 2.56, 8.05, 4.55 } }, false, false },
-                    { new double[][] { { 2.56 } }, false, false },
-                    { new double[][] { { 2.56, 5.10 } }, null, false },
-                    { new double[][] { { 2.56, 5.10 } }, false, null },
-                    { new double[][] { { 2.56, 5.10 }, { 1.43 } }, false, true }
+                    { null, 0.0, 0.0 },
+                    { new double[][] { { 1.34, 9.67, 3.45 } }, 0.0, 0.0 },
+                    { new double[][] { { -5.66 } }, 0.0, 0.0 },
+                    { new double[][] { { 2.13, 3.45 } }, null, 0.0 },
+                    { new double[][] { { 2.13, 3.45 } }, 0.0, null }
             };
         }
 
         @Test
-        public void convertInvertTest() {
+        public void convertStretchTest() {
             ResponseEntity<String> response = restTemplate.exchange(
-                    "/convert/invert",
+                    "/convert/stretch",
                     HttpMethod.POST,
-                    new HttpEntity<>(new ConvertInvertRequest(inputPoints, invertByX, invertByY)),
+                    new HttpEntity<>(new ConvertModifyRequest(inputPoints, dx, dy)),
                     String.class
             );
             assertThat(response.getStatusCode().is4xxClientError()).isTrue();
@@ -83,32 +82,35 @@ public class ConvertInvertTest {
 
         private final double[][] inputPoints;
         private final double[][] outputPoints;
-        private final Boolean invertByX;
-        private final Boolean invertByY;
+        private final Double dx;
+        private final Double dy;
 
-        public PositiveParameterizedTests(double[][] inputPoints, double[][] outputPoints, Boolean invertByX, Boolean invertByY) {
+        public PositiveParameterizedTests(double[][] inputPoints, double[][] outputPoints, Double dx, Double dy) {
             this.inputPoints = inputPoints;
             this.outputPoints = outputPoints;
-            this.invertByX = invertByX;
-            this.invertByY = invertByY;
+            this.dx = dx;
+            this.dy = dy;
         }
 
         @Parameterized.Parameters
         public static Object[][] getParameters() {
             return new Object[][] {
-                    { new double[][] { { 2.56, 8.05 } }, new double[][] { { 2.56, 8.05 } }, false, false },
-                    { new double[][] { { 2.56, 8.05 } }, new double[][] { { -2.56, 8.05 } }, true, false },
-                    { new double[][] { { 2.56, 8.05 } }, new double[][] { { 2.56, -8.05 } }, false, true },
-                    { new double[][] { { 2.56, 8.05 } }, new double[][] { { -2.56, -8.05 } }, true, true }
+                    { new double[][] { { 4.30, 2.53 } }, new double[][] { { 6.45, 17.71 } }, 1.5, 7.0 },
+                    { new double[][] { { 5, 3 } }, new double[][] { { -10, 1.5 } }, -2.0, 0.5 },
+                    { new double[][] { { 4.30, 2.53 } }, new double[][] { { 4.30, 0 } }, 1.0, 0.0 },
+                    { new double[][] { { 4.30, 2.53 } }, new double[][] { { 0, 2.53 } }, 0.0, 1.0 },
+                    { new double[][] { { 2.5, 5.25 } }, new double[][] { { 10, -21 } }, 4.0, -4.0 },
+                    { new double[][] { { 4.30, 2.53 } }, new double[][] { { 0, 0 } }, 0.0, 0.0 },
+                    { new double[][] { { 4.30, 2.53 }, { 8, -40 } }, new double[][] { { 0, 0 }, { 0, 0 } }, 0.0, 0.0 }
             };
         }
 
         @Test
-        public void convertInvertTest() {
+        public void convertStretchTest() {
             ResponseEntity<String> response = restTemplate.exchange(
-                    "/convert/invert",
+                    "/convert/stretch",
                     HttpMethod.POST,
-                    new HttpEntity<>(new ConvertInvertRequest(inputPoints, invertByX, invertByY)),
+                    new HttpEntity<>(new ConvertModifyRequest(inputPoints, dx, dy)),
                     String.class
             );
             try {
