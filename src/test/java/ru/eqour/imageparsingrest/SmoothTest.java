@@ -2,6 +2,7 @@ package ru.eqour.imageparsingrest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -9,31 +10,38 @@ import org.junit.runner.RunWith;
 
 import org.junit.runners.Parameterized;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import ru.eqour.imageparsingrest.model.SmoothRequest;
 import ru.eqour.imageparsingrest.model.SmoothResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(Enclosed.class)
 public class SmoothTest {
 
 	@RunWith(Parameterized.class)
-	@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+	@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
+	@AutoConfigureMockMvc
 	public static class NegativeParameterizedTests {
 
+		@ClassRule
+		public static final SpringClassRule springClassRule = new SpringClassRule();
 		@Rule
 		public final SpringMethodRule springMethodRule = new SpringMethodRule();
 		@Autowired
-		private TestRestTemplate restTemplate;
+		public MockMvc mvc;
+		@Autowired
+		private ObjectMapper mapper;
 
 		private final int[][] points;
 		private final Integer maxIteration;
@@ -58,27 +66,27 @@ public class SmoothTest {
 		}
 
 		@Test
-		public void smoothTest() {
-			ResponseEntity<String> response = restTemplate.exchange(
-					"/smooth",
-					HttpMethod.POST,
-					new HttpEntity<>(new SmoothRequest(maxIteration, points)),
-					String.class
-			);
-			assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+		public void smoothTest() throws Exception {
+			mvc.perform(post("/smooth")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(mapper.writeValueAsString(new SmoothRequest(maxIteration, points))))
+					.andExpect(status().is4xxClientError());
 		}
 	}
 
 	@RunWith(Parameterized.class)
-	@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+	@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
+	@AutoConfigureMockMvc
 	public static class PositiveParameterizedTests {
 
+		@ClassRule
+		public static final SpringClassRule springClassRule = new SpringClassRule();
 		@Rule
 		public final SpringMethodRule springMethodRule = new SpringMethodRule();
 		@Autowired
-		private ObjectMapper mapper;
+		public MockMvc mvc;
 		@Autowired
-		private TestRestTemplate restTemplate;
+		private ObjectMapper mapper;
 
 		private final int[][] requestPoints;
 		private final int[][] responsePoints;
@@ -104,16 +112,14 @@ public class SmoothTest {
 		}
 
 		@Test
-		public void smoothTest() {
-			ResponseEntity<String> response = restTemplate.exchange(
-					"/smooth",
-					HttpMethod.POST,
-					new HttpEntity<>(new SmoothRequest(requestMaxIteration, requestPoints)),
-					String.class
-			);
+		public void smoothTest() throws Exception {
+			MvcResult result = mvc.perform(post("/smooth")
+							.contentType(MediaType.APPLICATION_JSON)
+							.content(mapper.writeValueAsString(new SmoothRequest(requestMaxIteration, requestPoints))))
+					.andExpect(status().is(200))
+					.andReturn();
 			try {
-				assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
-				SmoothResponse r = mapper.readValue(response.getBody(), SmoothResponse.class);
+				SmoothResponse r = mapper.readValue(result.getResponse().getContentAsString(), SmoothResponse.class);
 				assertThat(r).isNotNull();
 				assertThat(r.getIteration()).isEqualTo(responseMaxIteration);
 				assertThat(r.getPoints()).isDeepEqualTo(responsePoints);

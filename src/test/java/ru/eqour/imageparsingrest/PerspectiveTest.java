@@ -2,19 +2,20 @@ package ru.eqour.imageparsingrest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.PerspectiveRequest;
 import ru.eqour.imageparsingrest.model.PerspectiveResponse;
@@ -23,18 +24,25 @@ import java.awt.image.BufferedImage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(Enclosed.class)
 public class PerspectiveTest {
 
     @RunWith(Parameterized.class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+    @AutoConfigureMockMvc
     public static class NegativeParameterizedTests {
 
+        @ClassRule
+        public static final SpringClassRule springClassRule = new SpringClassRule();
         @Rule
         public final SpringMethodRule springMethodRule = new SpringMethodRule();
         @Autowired
-        private TestRestTemplate restTemplate;
+        public MockMvc mvc;
+        @Autowired
+        private ObjectMapper mapper;
 
         private final BufferedImage inputImage;
         private final int[][] points;
@@ -72,27 +80,29 @@ public class PerspectiveTest {
         }
 
         @Test
-        public void perspectiveTest() {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "/perspective",
-                    HttpMethod.POST,
-                    new HttpEntity<>(new PerspectiveRequest(inputImage, points, requiredSize[0], requiredSize[1])),
-                    String.class
-            );
-            assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+        public void perspectiveTest() throws Exception {
+            mvc.perform(post("/perspective")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(
+                                    new PerspectiveRequest(inputImage, points, requiredSize[0], requiredSize[1])
+                            )))
+                    .andExpect(status().is4xxClientError());
         }
     }
 
     @RunWith(Parameterized.class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+    @AutoConfigureMockMvc
     public static class PositiveParameterizedTests {
 
+        @ClassRule
+        public static final SpringClassRule springClassRule = new SpringClassRule();
         @Rule
         public final SpringMethodRule springMethodRule = new SpringMethodRule();
         @Autowired
-        private ObjectMapper mapper;
+        public MockMvc mvc;
         @Autowired
-        private TestRestTemplate restTemplate;
+        private ObjectMapper mapper;
 
         private final BufferedImage inputImage;
         private final BufferedImage outputImage;
@@ -125,16 +135,16 @@ public class PerspectiveTest {
         }
 
         @Test
-        public void perspectiveTest() {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "/perspective",
-                    HttpMethod.POST,
-                    new HttpEntity<>(new PerspectiveRequest(inputImage, points, requiredSize[0], requiredSize[1])),
-                    String.class
-            );
+        public void perspectiveTest() throws Exception {
+            MvcResult result = mvc.perform(post("/perspective")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(
+                                    new PerspectiveRequest(inputImage, points, requiredSize[0], requiredSize[1])
+                            )))
+                    .andExpect(status().is(200))
+                    .andReturn();
             try {
-                assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
-                PerspectiveResponse r = mapper.readValue(response.getBody(), PerspectiveResponse.class);
+                PerspectiveResponse r = mapper.readValue(result.getResponse().getContentAsString(), PerspectiveResponse.class);
                 assertThat(r).isNotNull();
                 assertThat(r.getImageId()).isNotNull();
                 assertThat(TestHelper.compareBufferedImages(r.getImage(), outputImage)).isTrue();

@@ -2,25 +2,28 @@ package ru.eqour.imageparsingrest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.ConvertInvertAxisRequest;
 import ru.eqour.imageparsingrest.model.ConvertResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(Enclosed.class)
 public class ConvertInvertAxisTest {
@@ -28,13 +31,18 @@ public class ConvertInvertAxisTest {
     private static final double DELTA = 0.005;
 
     @RunWith(Parameterized.class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+    @AutoConfigureMockMvc
     public static class NegativeParameterizedTests {
 
+        @ClassRule
+        public static final SpringClassRule springClassRule = new SpringClassRule();
         @Rule
         public final SpringMethodRule springMethodRule = new SpringMethodRule();
         @Autowired
-        private TestRestTemplate restTemplate;
+        public MockMvc mvc;
+        @Autowired
+        private ObjectMapper mapper;
 
         private final double[][] inputPoints;
         private final Double invertedAxisPosition;
@@ -55,38 +63,37 @@ public class ConvertInvertAxisTest {
         }
 
         @Test
-        public void convertInvertAxisXTest() {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "/convert/invertAxisX",
-                    HttpMethod.POST,
-                    new HttpEntity<>(new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition)),
-                    String.class
-            );
-            assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+        public void convertInvertAxisXTest() throws Exception {
+            mvc.perform(post("/convert/invertAxisX")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(
+                                    new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition))))
+                    .andExpect(status().is4xxClientError());
         }
 
         @Test
-        public void convertInvertAxisYTest() {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "/convert/invertAxisY",
-                    HttpMethod.POST,
-                    new HttpEntity<>(new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition)),
-                    String.class
-            );
-            assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+        public void convertInvertAxisYTest() throws Exception {
+            mvc.perform(post("/convert/invertAxisY")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(
+                                    new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition))))
+                    .andExpect(status().is4xxClientError());
         }
     }
 
     @RunWith(Parameterized.class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+    @AutoConfigureMockMvc
     public static class PositiveParameterizedTests {
 
+        @ClassRule
+        public static final SpringClassRule springClassRule = new SpringClassRule();
         @Rule
         public final SpringMethodRule springMethodRule = new SpringMethodRule();
         @Autowired
-        private ObjectMapper mapper;
+        public MockMvc mvc;
         @Autowired
-        private TestRestTemplate restTemplate;
+        private ObjectMapper mapper;
 
         private final double[][] inputPoints;
         private final Double invertedAxisPosition;
@@ -114,16 +121,15 @@ public class ConvertInvertAxisTest {
         }
 
         @Test
-        public void convertInvertAxisX() {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "/convert/invertAxisX",
-                    HttpMethod.POST,
-                    new HttpEntity<>(new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition)),
-                    String.class
-            );
+        public void convertInvertAxisX() throws Exception {
+            MvcResult result = mvc.perform(post("/convert/invertAxisX")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(
+                                    new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition))))
+                    .andExpect(status().is(200))
+                    .andReturn();
             try {
-                assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
-                ConvertResponse r = mapper.readValue(response.getBody(), ConvertResponse.class);
+                ConvertResponse r = mapper.readValue(result.getResponse().getContentAsString(), ConvertResponse.class);
                 assertThat(r).isNotNull();
                 assertThat(TestHelper.compareDouble2Array(r.getPoints(), outputPointsInvertedX, DELTA)).isTrue();
             } catch (JsonProcessingException e) {
@@ -132,16 +138,15 @@ public class ConvertInvertAxisTest {
         }
 
         @Test
-        public void convertInvertAxisY() {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "/convert/invertAxisY",
-                    HttpMethod.POST,
-                    new HttpEntity<>(new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition)),
-                    String.class
-            );
+        public void convertInvertAxisY() throws Exception {
+            MvcResult result = mvc.perform(post("/convert/invertAxisY")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(
+                                    new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition))))
+                    .andExpect(status().is(200))
+                    .andReturn();
             try {
-                assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
-                ConvertResponse r = mapper.readValue(response.getBody(), ConvertResponse.class);
+                ConvertResponse r = mapper.readValue(result.getResponse().getContentAsString(), ConvertResponse.class);
                 assertThat(r).isNotNull();
                 assertThat(TestHelper.compareDouble2Array(r.getPoints(), outputPointsInvertedY, DELTA)).isTrue();
             } catch (JsonProcessingException e) {

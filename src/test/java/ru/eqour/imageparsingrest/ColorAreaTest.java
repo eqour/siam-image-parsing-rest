@@ -2,40 +2,48 @@ package ru.eqour.imageparsingrest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(Enclosed.class)
 public class ColorAreaTest {
 
     @RunWith(Parameterized.class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+    @AutoConfigureMockMvc
     public static class NegativeParameterizedTests {
 
+        @ClassRule
+        public static final SpringClassRule springClassRule = new SpringClassRule();
         @Rule
         public final SpringMethodRule springMethodRule = new SpringMethodRule();
         @Autowired
-        private TestRestTemplate restTemplate;
+        public MockMvc mvc;
+        @Autowired
+        private ObjectMapper mapper;
 
         private final BufferedImage image;
         private final Color color;
@@ -68,44 +76,39 @@ public class ColorAreaTest {
         }
 
         @Test
-        public void colorAreaTest() {
-            ResponseEntity<ImageResponse> imageResponse = null;
+        public void colorAreaTest() throws Exception {
+            Long imageId = null;
             if (image != null) {
-                imageResponse = restTemplate.exchange(
-                        "/image",
-                        HttpMethod.POST,
-                        new HttpEntity<>(new ImageRequest(image)),
-                        ImageResponse.class
-                );
+                MvcResult result = mvc.perform(post("/image")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(new ImageRequest(image))))
+                        .andReturn();
+                imageId = JsonPath.parse(result.getResponse().getContentAsString()).read("$.imageId", Long.class);
             }
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "/color/area",
-                    HttpMethod.POST,
-                    new HttpEntity<>(
-                            new ColorAreaRequest(
-                                    image == null ? Long.MAX_VALUE
-                                            : Objects.requireNonNull(imageResponse.getBody()).getImageId(),
-                                    colorDifference,
-                                    color,
-                                    selectedArea[0], selectedArea[1], selectedArea[2], selectedArea[3]
-                            )
-                    ),
-                    String.class
-            );
-            assertThat(response.getStatusCode().is4xxClientError()).isTrue();
+            mvc.perform(post("/color/area")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(
+                                    new ColorAreaRequest(image == null ? Long.MAX_VALUE : imageId,
+                                            colorDifference, color,
+                                            selectedArea[0], selectedArea[1], selectedArea[2], selectedArea[3]
+                                    ))))
+                    .andExpect(status().is4xxClientError());
         }
     }
 
     @RunWith(Parameterized.class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+    @AutoConfigureMockMvc
     public static class PositiveParameterizedTests {
 
+        @ClassRule
+        public static final SpringClassRule springClassRule = new SpringClassRule();
         @Rule
         public final SpringMethodRule springMethodRule = new SpringMethodRule();
         @Autowired
-        private ObjectMapper mapper;
+        public MockMvc mvc;
         @Autowired
-        private TestRestTemplate restTemplate;
+        private ObjectMapper mapper;
 
         private final BufferedImage image;
         private final Color color;
@@ -136,29 +139,22 @@ public class ColorAreaTest {
         }
 
         @Test
-        public void colorAreaTest() {
-            ResponseEntity<ImageResponse> imageResponse = restTemplate.exchange(
-                    "/image",
-                    HttpMethod.POST,
-                    new HttpEntity<>(new ImageRequest(image)),
-                    ImageResponse.class
-            );
-            ResponseEntity<String> response = restTemplate.exchange(
-                    "/color/area",
-                    HttpMethod.POST,
-                    new HttpEntity<>(
-                            new ColorAreaRequest(
-                                    Objects.requireNonNull(imageResponse.getBody()).getImageId(),
-                                    colorDifference,
-                                    color,
-                                    selectedArea[0], selectedArea[1], selectedArea[2], selectedArea[3]
-                            )
-                    ),
-                    String.class
-            );
+        public void colorAreaTest() throws Exception {
+            MvcResult iResult = mvc.perform(post("/image")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(new ImageRequest(image))))
+                    .andReturn();
+            Long imageId = JsonPath.parse(iResult.getResponse().getContentAsString()).read("$.imageId", Long.class);
+            MvcResult result = mvc.perform(post("/color/area")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(
+                                    new ColorAreaRequest(imageId, colorDifference, color,
+                                            selectedArea[0], selectedArea[1], selectedArea[2], selectedArea[3]
+                                    ))))
+                    .andExpect(status().is(200))
+                    .andReturn();
             try {
-                assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
-                ColorResponse r = mapper.readValue(response.getBody(), ColorResponse.class);
+                ColorResponse r = mapper.readValue(result.getResponse().getContentAsString(), ColorResponse.class);
                 assertThat(r).isNotNull();
                 assertThat(TestHelper.sortMinXMinY(r.getPixels())).isDeepEqualTo(pixels);
             } catch (JsonProcessingException e) {
