@@ -1,7 +1,10 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ConvertResponse {
 
+    @ApiModelProperty(value = "координаты точек")
     private double[][] points;
 
     public ConvertResponse() {

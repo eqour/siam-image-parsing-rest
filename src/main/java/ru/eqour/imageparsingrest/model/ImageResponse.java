@@ -1,7 +1,10 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ImageResponse {
 
+    @ApiModelProperty(value = "идентификатор изображения")
     private long imageId;
 
     public ImageResponse() {

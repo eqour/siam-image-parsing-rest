@@ -1,8 +1,12 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ConvertInvertRequest extends ConvertRequest {
 
+    @ApiModelProperty(value = "инвертировать значения точек по оси x", example = "true", required = true)
     private Boolean invertByX;
+    @ApiModelProperty(value = "инвертировать значения точек по оси y", example = "false", required = true)
     private Boolean invertByY;
 
     public ConvertInvertRequest() {

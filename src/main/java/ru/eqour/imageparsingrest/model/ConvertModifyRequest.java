@@ -1,8 +1,12 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ConvertModifyRequest extends ConvertRequest {
 
+    @ApiModelProperty(value = "коэффициент изменения координат по оси x", example = "0.5", required = true)
     private Double dx;
+    @ApiModelProperty(value = "коэффициент изменения координат по оси y", example = "-1.5", required = true)
     private Double dy;
 
     public ConvertModifyRequest() {

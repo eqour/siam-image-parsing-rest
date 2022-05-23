@@ -1,15 +1,17 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.awt.image.BufferedImage;
 
 public class PerspectiveRequest {
 
     private BufferedImage image;
-
+    @ApiModelProperty(value = "координаты точек", example = "[[5, 7],[4, 8],[6, 2]]", required = true)
     private int[][] points;
-
+    @ApiModelProperty(value = "ширина результирующего изображения", example = "1920", required = true)
     private Integer outputWidth;
-
+    @ApiModelProperty(value = "высота результирующего изображения", example = "1080", required = true)
     private Integer outputHeight;
 
     public PerspectiveRequest() {

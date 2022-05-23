@@ -1,7 +1,10 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ConvertInvertAxisRequest extends ConvertRequest {
 
+    @ApiModelProperty(value = "новая позиция оси", example = "5.0", required = true)
     private Double invertedAxisPosition;
 
     public ConvertInvertAxisRequest() {

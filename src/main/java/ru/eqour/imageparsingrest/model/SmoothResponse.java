@@ -1,8 +1,12 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class SmoothResponse {
 
+    @ApiModelProperty(value = "номер последней итерации алгоритма сглаживания")
     private int iteration;
+    @ApiModelProperty(value = "координаты точек")
     private int[][] points;
 
     public SmoothResponse() {

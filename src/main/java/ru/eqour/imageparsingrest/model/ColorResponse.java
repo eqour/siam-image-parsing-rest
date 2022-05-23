@@ -1,7 +1,10 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ColorResponse {
 
+    @ApiModelProperty(value = "координаты пикселей")
     private int[][] pixels;
 
     public ColorResponse() {

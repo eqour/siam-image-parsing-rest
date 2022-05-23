@@ -1,9 +1,14 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ColorPointRequest extends ColorRequest {
 
+    @ApiModelProperty(value = "координата пикселя по оси x", example = "104", required = true)
     private Integer x;
+    @ApiModelProperty(value = "координата пикселя по оси y", example = "44", required = true)
     private Integer y;
+    @ApiModelProperty(value = "радиус поиска соседних пикселей", example = "5", required = true)
     private Integer searchRadius;
 
     public ColorPointRequest() {

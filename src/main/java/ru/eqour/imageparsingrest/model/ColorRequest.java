@@ -1,8 +1,12 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ColorRequest {
 
+    @ApiModelProperty(value = "идентификатор изображения", example = "1", required = true)
     private Long imageId;
+    @ApiModelProperty(value = "цветовой порог", example = "0", required = true)
     private Double colorDifference;
 
     public ColorRequest() {

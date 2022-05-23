@@ -1,9 +1,12 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.awt.image.BufferedImage;
 
 public class PerspectiveResponse {
 
+    @ApiModelProperty(value = "идентификатор изображения")
     private long imageId;
     private BufferedImage image;
 
