@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.PerspectiveRequest;
 import ru.eqour.imageparsingrest.model.PerspectiveResponse;
@@ -84,7 +85,10 @@ public class PerspectiveTest {
             mvc.perform(post("/perspective")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
-                                    new PerspectiveRequest(inputImage, points, requiredSize[0], requiredSize[1])
+                                    new PerspectiveRequest(
+                                            inputImage == null ? null : ImageHelper.convertToBase64(inputImage),
+                                            points, requiredSize[0], requiredSize[1]
+                                    )
                             )))
                     .andExpect(status().is4xxClientError());
         }
@@ -139,7 +143,10 @@ public class PerspectiveTest {
             MvcResult result = mvc.perform(post("/perspective")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
-                                    new PerspectiveRequest(inputImage, points, requiredSize[0], requiredSize[1])
+                                    new PerspectiveRequest(
+                                            ImageHelper.convertToBase64(inputImage),
+                                            points, requiredSize[0], requiredSize[1]
+                                    )
                             )))
                     .andExpect(status().is(200))
                     .andReturn();
@@ -147,7 +154,7 @@ public class PerspectiveTest {
                 PerspectiveResponse r = mapper.readValue(result.getResponse().getContentAsString(), PerspectiveResponse.class);
                 assertThat(r).isNotNull();
                 assertThat(r.getImageId()).isNotNull();
-                assertThat(TestHelper.compareBufferedImages(r.getImage(), outputImage)).isTrue();
+                assertThat(TestHelper.compareBufferedImages(ImageHelper.convertToImage(r.getImage()), outputImage)).isTrue();
             } catch (JsonProcessingException e) {
                 fail(e.getMessage());
             }

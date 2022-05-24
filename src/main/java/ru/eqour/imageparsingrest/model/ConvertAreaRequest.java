@@ -1,14 +1,24 @@
 package ru.eqour.imageparsingrest.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class ConvertAreaRequest extends ConvertRequest {
 
+    @ApiModelProperty(value = "карйняя начальная координата исходной области по оси x", example = "0", required = true, position = 1)
     private Double srcSX;
+    @ApiModelProperty(value = "карйняя начальная координата исходной области по оси y", example = "0", required = true, position = 2)
     private Double srcSY;
+    @ApiModelProperty(value = "карйняя конечная координата исходной области по оси x", example = "5", required = true, position = 3)
     private Double srcEX;
+    @ApiModelProperty(value = "карйняя конечная координата исходной области по оси y", example = "5", required = true, position = 4)
     private Double srcEY;
+    @ApiModelProperty(value = "карйняя начальная координата преобразованной области по оси x", example = "10", required = true, position = 5)
     private Double dstSX;
+    @ApiModelProperty(value = "карйняя начальная координата преобразованной области по оси y", example = "10", required = true, position = 6)
     private Double dstSY;
+    @ApiModelProperty(value = "карйняя конечная координата преобразованной области по оси x", example = "20", required = true, position = 7)
     private Double dstEX;
+    @ApiModelProperty(value = "карйняя конечная координата преобразованной области по оси y", example = "20", required = true, position = 8)
     private Double dstEY;
 
     public ConvertAreaRequest() {

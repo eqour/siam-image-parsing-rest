@@ -12,6 +12,7 @@ import ru.eqour.imageparsing.DataSmoother;
 import ru.eqour.imageparsing.PerspectiveCorrector;
 import ru.eqour.imageparsingrest.config.SwaggerConfiguration;
 import ru.eqour.imageparsingrest.helper.ConvertHelper;
+import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.model.*;
 import ru.eqour.imageparsingrest.service.ImageDataCacheService;
 import ru.eqour.imageparsingrest.validation.*;
@@ -46,40 +47,40 @@ public class Controller {
     @ApiOperation(value = "Загрука изображения")
     public ImageResponse image(@Valid @RequestBody ImageRequest request) {
         long imageId = counter.incrementAndGet();
-        imageService.saveImage(imageId, request.getImage());
+        imageService.saveImage(imageId, ImageHelper.convertToImage(request.getImage()));
         return new ImageResponse(imageId);
     }
 
     @PostMapping("/perspective")
     @ApiOperation(value = "Корреция перспективы изображения")
     public PerspectiveResponse perspective(@Valid @RequestBody PerspectiveRequest request) {
-        BufferedImage inputImage = request.getImage();
+        BufferedImage inputImage = ImageHelper.convertToImage(request.getImage());
         BufferedImage outputImage = PerspectiveCorrector.correct(inputImage, request.getPoints(),
                 request.getOutputWidth(), request.getOutputHeight());
         long imageId = counter.incrementAndGet();
         imageService.saveImage(imageId, outputImage);
-        return new PerspectiveResponse(imageId, outputImage);
+        return new PerspectiveResponse(imageId, ImageHelper.convertToBase64(outputImage));
     }
 
     @PostMapping("/color/entire")
-    @ApiOperation(value = "Поиск пикселей по цвету всего изображения")
+    @ApiOperation(value = "Поиск пикселей по цвету у всего изображения")
     public ColorResponse color(@Valid @RequestBody ColorEntireRequest request) {
         BufferedImage inputImage = imageService.getImageById(request.getImageId());
-        int[][] pixels = ColorSelector.select(inputImage, request.getColor(), request.getColorDifference());
+        int[][] pixels = ColorSelector.select(inputImage, request.getColor().toColor(), request.getColorDifference());
         return new ColorResponse(pixels);
     }
 
     @PostMapping("/color/area")
-    @ApiOperation(value = "Поиск пикселей по цвету области изображения")
+    @ApiOperation(value = "Поиск пикселей по цвету в области изображения")
     public ColorResponse color(@Valid @RequestBody ColorAreaRequest request) {
         BufferedImage inputImage = imageService.getImageById(request.getImageId());
-        int[][] pixels = ColorSelector.select(inputImage, request.getColor(), request.getColorDifference(),
+        int[][] pixels = ColorSelector.select(inputImage, request.getColor().toColor(), request.getColorDifference(),
                 request.getMinX(), request.getMinY(), request.getMaxX(), request.getMaxY());
         return new ColorResponse(pixels);
     }
 
     @PostMapping("/color/point")
-    @ApiOperation(value = "Поиск пикселей по заданной точек на изображении методом заливки")
+    @ApiOperation(value = "Поиск пикселей по заданной точке на изображении методом заливки")
     public ColorResponse color(@Valid @RequestBody ColorPointRequest request) {
         BufferedImage inputImage = imageService.getImageById(request.getImageId());
         int[][] pixels = ColorSelector.select(inputImage, request.getX(), request.getY(),

@@ -1,24 +1,22 @@
 package ru.eqour.imageparsingrest.model;
 
-import java.awt.*;
-
 public class ColorEntireRequest extends ColorRequest {
 
-    private Color color;
+    private ImageColor color;
 
     public ColorEntireRequest() {
     }
 
-    public ColorEntireRequest(Long image, Double colorDifference, Color color) {
+    public ColorEntireRequest(Long image, Double colorDifference, ImageColor color) {
         super(image, colorDifference);
         this.color = color;
     }
 
-    public Color getColor() {
+    public ImageColor getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(ImageColor color) {
         this.color = color;
     }
 }

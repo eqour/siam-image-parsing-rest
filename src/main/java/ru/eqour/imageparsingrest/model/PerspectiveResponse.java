@@ -2,27 +2,26 @@ package ru.eqour.imageparsingrest.model;
 
 import io.swagger.annotations.ApiModelProperty;
 
-import java.awt.image.BufferedImage;
-
 public class PerspectiveResponse {
 
     @ApiModelProperty(value = "идентификатор изображения")
     private long imageId;
-    private BufferedImage image;
+    @ApiModelProperty(value = "изображение в формате base64")
+    private String image;
 
     public PerspectiveResponse() {
     }
 
-    public PerspectiveResponse(long imageId, BufferedImage base64Image) {
+    public PerspectiveResponse(long imageId, String base64Image) {
         this.imageId = imageId;
         this.image = base64Image;
     }
 
-    public BufferedImage getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(BufferedImage image) {
+    public void setImage(String image) {
         this.image = image;
     }
 

@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.*;
 
@@ -80,7 +81,9 @@ public class ColorPointTest {
             if (image != null) {
                 MvcResult result = mvc.perform(post("/image")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsString(new ImageRequest(image))))
+                                .content(mapper.writeValueAsString(
+                                        new ImageRequest(ImageHelper.convertToBase64(image)))
+                                ))
                         .andReturn();
                 imageId = JsonPath.parse(result.getResponse().getContentAsString()).read("$.imageId", Long.class);
             }
@@ -144,14 +147,14 @@ public class ColorPointTest {
         public void colorPointTest() throws Exception {
             MvcResult iResult = mvc.perform(post("/image")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(new ImageRequest(image))))
+                            .content(mapper.writeValueAsString(new ImageRequest(ImageHelper.convertToBase64(image)))))
                     .andReturn();
             Long imageId = JsonPath.parse(iResult.getResponse().getContentAsString()).read("$.imageId", Long.class);
             MvcResult eResult = mvc.perform(post("/color/entire")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ColorEntireRequest(imageId, colorDifference,
-                                            new Color(image.getRGB(startPoint[0], startPoint[1]))
+                                            ImageColor.fromColor(new Color(image.getRGB(startPoint[0], startPoint[1])))
                                     ))))
                     .andReturn();
             int[][] pixels = JsonPath.parse(eResult.getResponse().getContentAsString()).read("$.pixels", int[][].class);

@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.*;
 
@@ -81,7 +82,9 @@ public class ColorAreaTest {
             if (image != null) {
                 MvcResult result = mvc.perform(post("/image")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsString(new ImageRequest(image))))
+                                .content(mapper.writeValueAsString(
+                                        new ImageRequest(ImageHelper.convertToBase64(image))
+                                )))
                         .andReturn();
                 imageId = JsonPath.parse(result.getResponse().getContentAsString()).read("$.imageId", Long.class);
             }
@@ -89,7 +92,8 @@ public class ColorAreaTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ColorAreaRequest(image == null ? Long.MAX_VALUE : imageId,
-                                            colorDifference, color,
+                                            colorDifference,
+                                            color == null ? null : ImageColor.fromColor(color),
                                             selectedArea[0], selectedArea[1], selectedArea[2], selectedArea[3]
                                     ))))
                     .andExpect(status().is4xxClientError());
@@ -142,13 +146,13 @@ public class ColorAreaTest {
         public void colorAreaTest() throws Exception {
             MvcResult iResult = mvc.perform(post("/image")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(new ImageRequest(image))))
+                            .content(mapper.writeValueAsString(new ImageRequest(ImageHelper.convertToBase64(image)))))
                     .andReturn();
             Long imageId = JsonPath.parse(iResult.getResponse().getContentAsString()).read("$.imageId", Long.class);
             MvcResult result = mvc.perform(post("/color/area")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
-                                    new ColorAreaRequest(imageId, colorDifference, color,
+                                    new ColorAreaRequest(imageId, colorDifference, ImageColor.fromColor(color),
                                             selectedArea[0], selectedArea[1], selectedArea[2], selectedArea[3]
                                     ))))
                     .andExpect(status().is(200))

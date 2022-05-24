@@ -2,8 +2,6 @@ package ru.eqour.imageparsingrest.model;
 
 import io.swagger.annotations.ApiModelProperty;
 
-import java.awt.*;
-
 public class ColorAreaRequest extends ColorEntireRequest {
 
     @ApiModelProperty(value = "минимальная граница поиска по ширине", example = "5", required = true)
@@ -18,7 +16,7 @@ public class ColorAreaRequest extends ColorEntireRequest {
     public ColorAreaRequest() {
     }
 
-    public ColorAreaRequest(Long image, Double colorDifference, Color color, Integer minX, Integer minY, Integer maxX, Integer maxY) {
+    public ColorAreaRequest(Long image, Double colorDifference, ImageColor color, Integer minX, Integer minY, Integer maxX, Integer maxY) {
         super(image, colorDifference, color);
         this.minX = minX;
         this.minY = minY;

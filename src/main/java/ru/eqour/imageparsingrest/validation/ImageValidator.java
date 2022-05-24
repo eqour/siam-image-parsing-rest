@@ -2,6 +2,7 @@ package ru.eqour.imageparsingrest.validation;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.model.ImageRequest;
 
 import java.awt.image.BufferedImage;
@@ -17,7 +18,12 @@ public class ImageValidator implements Validator {
     public void validate(Object target, Errors errors) {
         ImageRequest request = (ImageRequest) target;
 
-        BufferedImage image = request.getImage();
+        if (request.getImage() == null) {
+            errors.rejectValue("image", "", "значение не должно быть null");
+            return;
+        }
+
+        BufferedImage image = ImageHelper.convertToImage(request.getImage());
 
         if (image == null) {
             errors.rejectValue("image", "", "значение не должно быть null");

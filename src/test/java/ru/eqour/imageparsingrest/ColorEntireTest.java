@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.*;
 
@@ -76,7 +77,9 @@ public class ColorEntireTest {
             if (image != null) {
                 MvcResult result = mvc.perform(post("/image")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsString(new ImageRequest(image))))
+                                .content(mapper.writeValueAsString(
+                                        new ImageRequest(ImageHelper.convertToBase64(image))
+                                )))
                         .andReturn();
                 imageId = JsonPath.parse(result.getResponse().getContentAsString()).read("$.imageId", Long.class);
             }
@@ -86,7 +89,7 @@ public class ColorEntireTest {
                                     new ColorEntireRequest(
                                         image == null ? Long.MAX_VALUE : imageId,
                                         colorDifference,
-                                        color
+                                        color == null ? null : ImageColor.fromColor(color)
                                     ))))
                     .andExpect(status().is4xxClientError());
         }
@@ -134,12 +137,15 @@ public class ColorEntireTest {
         public void colorEntireTest() throws Exception {
             MvcResult iResult = mvc.perform(post("/image")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(new ImageRequest(image))))
+                            .content(mapper.writeValueAsString(new ImageRequest(ImageHelper.convertToBase64(image)))))
                     .andReturn();
             Long imageId = JsonPath.parse(iResult.getResponse().getContentAsString()).read("$.imageId", Long.class);
             MvcResult result = mvc.perform(post("/color/entire")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(new ColorEntireRequest(imageId, colorDifference, color))))
+                            .content(mapper.writeValueAsString(new ColorEntireRequest(
+                                    imageId, colorDifference,
+                                    ImageColor.fromColor(color)
+                            ))))
                     .andExpect(status().is(200))
                     .andReturn();
             try {

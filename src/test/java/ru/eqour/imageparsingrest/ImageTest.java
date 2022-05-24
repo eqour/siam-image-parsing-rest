@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.model.ImageRequest;
 import ru.eqour.imageparsingrest.model.ImageResponse;
 
@@ -41,15 +42,17 @@ public class ImageTest {
         mvc.perform(post("/image")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(new ImageRequest(null))))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().is4xxClientError())
+                .andExpect(status().reason("Некорректный запрос"));
     }
 
     @Test
     public void BrokenImageTest() throws Exception {
         mvc.perform(post("/image")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"image\": {\"base64\": \"broken\"}}"))
-                .andExpect(status().is4xxClientError());
+                        .content("{\"image\": \"broken\"}"))
+                .andExpect(status().is4xxClientError())
+                .andExpect(status().reason("Не удалось конвертировать изображение"));
     }
 
     @Test
@@ -57,7 +60,11 @@ public class ImageTest {
         MvcResult result = mvc.perform(post("/image")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(
-                                new ImageRequest(new BufferedImage(5, 5, BufferedImage.TYPE_4BYTE_ABGR)))))
+                                new ImageRequest(
+                                        ImageHelper.convertToBase64(
+                                                new BufferedImage(5, 5, BufferedImage.TYPE_4BYTE_ABGR)
+                                        )
+                                ))))
                 .andExpect(status().is(200))
                 .andReturn();
         try {

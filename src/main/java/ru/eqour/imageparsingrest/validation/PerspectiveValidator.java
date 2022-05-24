@@ -3,8 +3,10 @@ package ru.eqour.imageparsingrest.validation;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import ru.eqour.imageparsingrest.helper.ImageHelper;
 import ru.eqour.imageparsingrest.model.PerspectiveRequest;
 
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,9 +43,10 @@ public class PerspectiveValidator implements Validator {
         if (request.getPoints() == null)
             errors.rejectValue("points", "", "значение не должно быть null");
 
-        if (request.getPoints() != null && request.getImage() != null
-                && !validateInputPoints(request.getPoints(),
-                request.getImage().getWidth(), request.getImage().getHeight())) {
+        BufferedImage image = request.getImage() == null ? null : ImageHelper.convertToImage(request.getImage());
+
+        if (request.getPoints() != null && image != null
+                && !validateInputPoints(request.getPoints(), image.getWidth(), image.getHeight())) {
             errors.rejectValue("points", "", "значение не должно быть null");
         }
     }
