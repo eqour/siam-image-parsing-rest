@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class ImageResponse {
 
-    @ApiModelProperty(value = "идентификатор изображения")
+    @ApiModelProperty(value = "идентификатор изображения", example = "1", required = true)
     private long imageId;
 
     public ImageResponse() {

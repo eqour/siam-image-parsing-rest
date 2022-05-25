@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class ColorResponse {
 
-    @ApiModelProperty(value = "координаты пикселей")
+    @ApiModelProperty(value = "координаты пикселей", example = "[[3,7],[8,5],[2,0]]", required = true)
     private int[][] pixels;
 
     public ColorResponse() {

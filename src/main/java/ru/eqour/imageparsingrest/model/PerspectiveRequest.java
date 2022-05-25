@@ -6,7 +6,7 @@ public class PerspectiveRequest {
 
     @ApiModelProperty(value = "изображение в формате base64", example = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAIAAAACDbGyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAAjSURBVBhXY2T4z/CfkQEJ/IdgEAJiJoggHKDzQfrh4D8jAwDA6wkAOa0ILwAAAABJRU5ErkJggg==", required = true)
     private String image;
-    @ApiModelProperty(value = "координаты четырёхугольника, описывающего преобразованное изображение", notes = "координаты перечисляются в порядке с левого верхнего угла по часовой стрелке", example = "[[0, 1],[4, 0],[4, 4],[0, 3]]", required = true)
+    @ApiModelProperty(value = "координаты четырёхугольника, описывающего преобразованное изображение; перечисляются в порядке с левого верхнего угла по часовой стрелке", example = "[[0,1],[4,0],[4,4],[0,3]]", required = true)
     private int[][] points;
     @ApiModelProperty(value = "ширина преобразованного изображения", example = "5", required = true)
     private Integer outputWidth;

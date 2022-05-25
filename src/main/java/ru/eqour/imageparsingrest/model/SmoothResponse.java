@@ -4,9 +4,9 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class SmoothResponse {
 
-    @ApiModelProperty(value = "номер последней итерации алгоритма сглаживания")
+    @ApiModelProperty(value = "номер последней итерации алгоритма сглаживания", example = "3", required = true)
     private int iteration;
-    @ApiModelProperty(value = "координаты точек")
+    @ApiModelProperty(value = "координаты точек", example = "[[3,7],[8,5],[2,0]]", required = true)
     private int[][] points;
 
     public SmoothResponse() {
