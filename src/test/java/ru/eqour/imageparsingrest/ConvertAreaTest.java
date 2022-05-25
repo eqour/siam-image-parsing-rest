@@ -76,7 +76,7 @@ public class ConvertAreaTest {
 
         @Test
         public void convertAreaTest() throws Exception {
-            mvc.perform(post("/convert/area")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/area")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ConvertAreaRequest(
                                     inputPoints,
@@ -126,7 +126,7 @@ public class ConvertAreaTest {
 
         @Test
         public void convertAreaTest() throws Exception {
-            MvcResult result = mvc.perform(post("/convert/area")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/area")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ConvertAreaRequest(
                                     inputPoints,

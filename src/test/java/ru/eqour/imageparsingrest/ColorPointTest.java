@@ -79,7 +79,7 @@ public class ColorPointTest {
         public void colorPointTest() throws Exception {
             Long imageId = null;
             if (image != null) {
-                MvcResult result = mvc.perform(post("/image")
+                MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(
                                         new ImageRequest(ImageHelper.convertToBase64(image)))
@@ -87,7 +87,7 @@ public class ColorPointTest {
                         .andReturn();
                 imageId = JsonPath.parse(result.getResponse().getContentAsString()).read("$.imageId", Long.class);
             }
-            mvc.perform(post("/color/point")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/color/point")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ColorPointRequest(image == null ? Long.MAX_VALUE : imageId,
@@ -145,12 +145,12 @@ public class ColorPointTest {
 
         @Test
         public void colorPointTest() throws Exception {
-            MvcResult iResult = mvc.perform(post("/image")
+            MvcResult iResult = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ImageRequest(ImageHelper.convertToBase64(image)))))
                     .andReturn();
             Long imageId = JsonPath.parse(iResult.getResponse().getContentAsString()).read("$.imageId", Long.class);
-            MvcResult eResult = mvc.perform(post("/color/entire")
+            MvcResult eResult = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/color/entire")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ColorEntireRequest(imageId, colorDifference,
@@ -158,7 +158,7 @@ public class ColorPointTest {
                                     ))))
                     .andReturn();
             int[][] pixels = JsonPath.parse(eResult.getResponse().getContentAsString()).read("$.pixels", int[][].class);
-            MvcResult result = mvc.perform(post("/color/point")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/color/point")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ColorPointRequest(imageId, colorDifference, startPoint[0], startPoint[1],

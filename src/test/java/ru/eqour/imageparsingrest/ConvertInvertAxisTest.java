@@ -64,7 +64,7 @@ public class ConvertInvertAxisTest {
 
         @Test
         public void convertInvertAxisXTest() throws Exception {
-            mvc.perform(post("/convert/invertAxisX")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/invertAxisX")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition))))
@@ -73,7 +73,7 @@ public class ConvertInvertAxisTest {
 
         @Test
         public void convertInvertAxisYTest() throws Exception {
-            mvc.perform(post("/convert/invertAxisY")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/invertAxisY")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition))))
@@ -122,7 +122,7 @@ public class ConvertInvertAxisTest {
 
         @Test
         public void convertInvertAxisX() throws Exception {
-            MvcResult result = mvc.perform(post("/convert/invertAxisX")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/invertAxisX")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition))))
@@ -139,7 +139,7 @@ public class ConvertInvertAxisTest {
 
         @Test
         public void convertInvertAxisY() throws Exception {
-            MvcResult result = mvc.perform(post("/convert/invertAxisY")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/invertAxisY")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ConvertInvertAxisRequest(inputPoints, invertedAxisPosition))))

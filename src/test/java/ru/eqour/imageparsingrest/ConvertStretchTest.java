@@ -67,7 +67,7 @@ public class ConvertStretchTest {
 
         @Test
         public void convertStretchTest() throws Exception {
-            mvc.perform(post("/convert/stretch")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/stretch")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ConvertModifyRequest(inputPoints, dx, dy))))
                     .andExpect(status().is4xxClientError());
@@ -115,7 +115,7 @@ public class ConvertStretchTest {
 
         @Test
         public void convertStretchTest() throws Exception {
-            MvcResult result = mvc.perform(post("/convert/stretch")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/stretch")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ConvertModifyRequest(inputPoints, dx, dy))))
                     .andExpect(status().is(200))

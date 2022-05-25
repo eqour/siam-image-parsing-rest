@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.SmoothRequest;
 import ru.eqour.imageparsingrest.model.SmoothResponse;
 
@@ -67,7 +68,7 @@ public class SmoothTest {
 
 		@Test
 		public void smoothTest() throws Exception {
-			mvc.perform(post("/smooth")
+			mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/smooth")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(mapper.writeValueAsString(new SmoothRequest(maxIteration, points))))
 					.andExpect(status().is4xxClientError());
@@ -113,7 +114,7 @@ public class SmoothTest {
 
 		@Test
 		public void smoothTest() throws Exception {
-			MvcResult result = mvc.perform(post("/smooth")
+			MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/smooth")
 							.contentType(MediaType.APPLICATION_JSON)
 							.content(mapper.writeValueAsString(new SmoothRequest(requestMaxIteration, requestPoints))))
 					.andExpect(status().is(200))

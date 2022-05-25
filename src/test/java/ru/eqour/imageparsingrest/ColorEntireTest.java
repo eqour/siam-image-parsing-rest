@@ -75,7 +75,7 @@ public class ColorEntireTest {
         public void colorEntireTest() throws Exception {
             Long imageId = null;
             if (image != null) {
-                MvcResult result = mvc.perform(post("/image")
+                MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(
                                         new ImageRequest(ImageHelper.convertToBase64(image))
@@ -83,7 +83,7 @@ public class ColorEntireTest {
                         .andReturn();
                 imageId = JsonPath.parse(result.getResponse().getContentAsString()).read("$.imageId", Long.class);
             }
-            mvc.perform(post("/color/entire")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/color/entire")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ColorEntireRequest(
@@ -135,12 +135,12 @@ public class ColorEntireTest {
 
         @Test
         public void colorEntireTest() throws Exception {
-            MvcResult iResult = mvc.perform(post("/image")
+            MvcResult iResult = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ImageRequest(ImageHelper.convertToBase64(image)))))
                     .andReturn();
             Long imageId = JsonPath.parse(iResult.getResponse().getContentAsString()).read("$.imageId", Long.class);
-            MvcResult result = mvc.perform(post("/color/entire")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/color/entire")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ColorEntireRequest(
                                     imageId, colorDifference,

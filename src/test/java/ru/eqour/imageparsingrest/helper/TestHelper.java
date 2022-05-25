@@ -10,6 +10,8 @@ import java.util.Comparator;
 
 public class TestHelper {
 
+    public static final String REST_CONTROLLER_MAPPING = "/api";
+
     public BufferedImage loadBufferedImageFromResources(String name) {
         try {
             ClassLoader loader = getClass().getClassLoader();

@@ -80,7 +80,7 @@ public class ColorAreaTest {
         public void colorAreaTest() throws Exception {
             Long imageId = null;
             if (image != null) {
-                MvcResult result = mvc.perform(post("/image")
+                MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(
                                         new ImageRequest(ImageHelper.convertToBase64(image))
@@ -88,7 +88,7 @@ public class ColorAreaTest {
                         .andReturn();
                 imageId = JsonPath.parse(result.getResponse().getContentAsString()).read("$.imageId", Long.class);
             }
-            mvc.perform(post("/color/area")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/color/area")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ColorAreaRequest(image == null ? Long.MAX_VALUE : imageId,
@@ -144,12 +144,12 @@ public class ColorAreaTest {
 
         @Test
         public void colorAreaTest() throws Exception {
-            MvcResult iResult = mvc.perform(post("/image")
+            MvcResult iResult = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ImageRequest(ImageHelper.convertToBase64(image)))))
                     .andReturn();
             Long imageId = JsonPath.parse(iResult.getResponse().getContentAsString()).read("$.imageId", Long.class);
-            MvcResult result = mvc.perform(post("/color/area")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/color/area")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ColorAreaRequest(imageId, colorDifference, ImageColor.fromColor(color),

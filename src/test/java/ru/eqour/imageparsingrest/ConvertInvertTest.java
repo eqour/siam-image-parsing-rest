@@ -68,7 +68,7 @@ public class ConvertInvertTest {
 
         @Test
         public void convertInvertTest() throws Exception{
-            mvc.perform(post("/convert/invert")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/invert")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ConvertInvertRequest(inputPoints, invertByX, invertByY))))
@@ -114,7 +114,7 @@ public class ConvertInvertTest {
 
         @Test
         public void convertInvertTest() throws Exception {
-            MvcResult result = mvc.perform(post("/convert/invert")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/invert")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new ConvertInvertRequest(inputPoints, invertByX, invertByY))))

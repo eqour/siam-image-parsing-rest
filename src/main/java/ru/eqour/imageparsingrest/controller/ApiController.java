@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api")
 @Api(tags = {SwaggerConfiguration.IPR_CONTROLLER_TAG})
-public class Controller {
+public class ApiController {
 
     private final AtomicLong counter = new AtomicLong();
     private final ImageDataCacheService imageService;
@@ -36,8 +36,8 @@ public class Controller {
     private final ColorPointValidator colorPointValidator;
 
     @Autowired
-    public Controller(ImageDataCacheService imageService,
-                      ColorAreaValidator colorAreaValidator, ColorPointValidator colorPointValidator) {
+    public ApiController(ImageDataCacheService imageService,
+                         ColorAreaValidator colorAreaValidator, ColorPointValidator colorPointValidator) {
         this.imageService = imageService;
         this.colorAreaValidator = colorAreaValidator;
         this.colorPointValidator = colorPointValidator;

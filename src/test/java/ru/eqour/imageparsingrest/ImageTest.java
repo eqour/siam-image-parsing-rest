@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.eqour.imageparsingrest.helper.ImageHelper;
+import ru.eqour.imageparsingrest.helper.TestHelper;
 import ru.eqour.imageparsingrest.model.ImageRequest;
 import ru.eqour.imageparsingrest.model.ImageResponse;
 
@@ -39,7 +40,7 @@ public class ImageTest {
 
     @Test
     public void NullImageTest() throws Exception {
-        mvc.perform(post("/image")
+        mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(new ImageRequest(null))))
                 .andExpect(status().is4xxClientError())
@@ -48,7 +49,7 @@ public class ImageTest {
 
     @Test
     public void BrokenImageTest() throws Exception {
-        mvc.perform(post("/image")
+        mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"image\": \"broken\"}"))
                 .andExpect(status().is4xxClientError())
@@ -57,7 +58,7 @@ public class ImageTest {
 
     @Test
     public void ValidImageTest() throws Exception {
-        MvcResult result = mvc.perform(post("/image")
+        MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/image")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(
                                 new ImageRequest(

@@ -67,7 +67,7 @@ public class ConvertTransferTest {
 
         @Test
         public void convertTransferTest() throws Exception {
-            mvc.perform(post("/convert/transfer")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/transfer")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ConvertModifyRequest(inputPoints, dx, dy))))
                     .andExpect(status().is4xxClientError());
@@ -112,7 +112,7 @@ public class ConvertTransferTest {
 
         @Test
         public void convertTransferTest() throws Exception {
-            MvcResult result = mvc.perform(post("/convert/transfer")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/convert/transfer")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(new ConvertModifyRequest(inputPoints, dx, dy))))
                     .andExpect(status().is(200))

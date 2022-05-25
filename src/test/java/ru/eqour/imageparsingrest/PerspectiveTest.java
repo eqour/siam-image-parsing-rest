@@ -82,7 +82,7 @@ public class PerspectiveTest {
 
         @Test
         public void perspectiveTest() throws Exception {
-            mvc.perform(post("/perspective")
+            mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/perspective")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new PerspectiveRequest(
@@ -140,7 +140,7 @@ public class PerspectiveTest {
 
         @Test
         public void perspectiveTest() throws Exception {
-            MvcResult result = mvc.perform(post("/perspective")
+            MvcResult result = mvc.perform(post(TestHelper.REST_CONTROLLER_MAPPING + "/perspective")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(mapper.writeValueAsString(
                                     new PerspectiveRequest(
