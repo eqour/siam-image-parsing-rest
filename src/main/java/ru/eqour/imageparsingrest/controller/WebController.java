@@ -13,4 +13,9 @@ public class WebController {
         return "index";
     }
 
+    @GetMapping("/editor")
+    public String editor() {
+        return "editor";
+    }
+
 }

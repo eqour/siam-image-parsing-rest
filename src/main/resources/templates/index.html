@@ -18,6 +18,8 @@
                         Загрузить изображение
                         <input type="file" id="image-input" hidden>
                     </label>
+                    <input type="number" min="1" max="700" id="perspective-width">
+                    <input type="number" min="1" max="700" id="perspective-height">
                     <button class="btn btn-primary" id="perspective-submit">Коррекция перспективы</button>
                 </div>
                 <div class="w-100 border rounded p-3">
@@ -47,7 +49,33 @@
                 </div>
             </div>
             <div class="col-6">
-                <textarea class="form-control w-100" style="resize: none; height: 400px;" id="output" readonly></textarea>
+                <textarea class="form-control w-100 mb-3" style="resize: none; height: 400px;" id="output" readonly></textarea>
+                <div class="w-100 border rounded p-3 mb-3">
+                    <div class="mb-3">
+                        <label>Количество итераций</label>
+                        <input type="number" min="1" max="100" id="smooth-iterations">
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" id="smooth-submit">сглаживание</button>
+                    </div>
+                </div>
+                <div class="w-100 border rounded p-3">
+                    <div class="mb-3">
+                        <label>X1</label>
+                        <input type="number" id="x1">
+                        <label>X2</label>
+                        <input type="number" id="x2">
+                    </div>
+                    <div class="mb-3">
+                        <label>Y1</label>
+                        <input type="number" id="y1">
+                        <label>Y2</label>
+                        <input type="number" id="y2">
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" id="convert-area-submit">преобразовать</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Парсер графиков</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/editor.css">
+</head>
+<body>
+    <div class="main-wrapper position-relative">
+        <div class="dropper position-absolute start-50 translate-middle d-flex flex-column align-items-center justify-content-center">
+            <p>Используйте drag & drop<br>или<br>добавьте картинку нажав на кнопку</p>
+            <label class="btn btn-primary file-input">
+                Загрузить картинку
+                <input type="file" hidden>
+            </label>
+        </div>
+        <div class="toolbox position-absolute start-50 translate-middle-x d-flex align-items-center">
+            <div class="tool tool-active"><img src="/images/svg/image-plus-outline.svg"></div>
+            <div class="tool"><img src="/images/svg/crop.svg"></div>
+            <div class="tool"><img src="/images/svg/white-balance-sunny.svg"></div>
+            <div class="tool"><img src="/images/svg/circle-half-full.svg"></div>
+            <div class="tool"><img src="/images/svg/axis-arrow.svg"></div>
+            <div class="tool"><img src="/images/svg/chart-timeline-variant.svg"></div>
+            <div class="tool"><img src="/images/svg/arrow-top-right-bold-box-outline.svg"></div>
+        </div>
+    </div>
+</body>
+</html>

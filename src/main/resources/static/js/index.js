@@ -7,7 +7,16 @@ var colorEntireButton = $('#color-entire-submit');
 var colorAreaButton = $('#color-area-submit');
 var colorPointButton = $('#color-point-submit');
 var perspectiveButton = $('#perspective-submit');
+var perspectiveWidthSelector = $('#perspective-width');
+var perspectiveHeightSelector = $('#perspective-height');
+var smoothButton = $('#smooth-submit');
+var smoothIterationsSelector = $('#smooth-iterations');
 var outputArea = $('#output');
+var convertAreaButton = $('#convert-area-submit');
+var inputX1 = $('#x1');
+var inputX2 = $('#x2');
+var inputY1 = $('#y1');
+var inputY2 = $('#y2');
 
 var imageId = 0;
 var imageIsUploaded = false;
@@ -25,6 +34,8 @@ colorAreaButton.click(colorAreaHandler);
 colorPointButton.click(colorPointHandler);
 currentImage.click(selectPointHandler);
 perspectiveButton.click(perspectiveHandler);
+smoothButton.click(smoothHandler);
+convertAreaButton.click(convertAreaHandler);
 
 function imageLoadHandler(e) {
     const files = e.target.files;
@@ -89,7 +100,33 @@ function failColorRequestHandler(xhr, repeatRequestCallback) {
 function perspectiveHandler() {
     const l = selectedPoints.length;
     if (l < 2) return;
-    apiPerspective(selectedPoints, getBase64FromImg(currentImage), 500, 500);
+    const width = perspectiveWidthSelector.first().val();
+    const height = perspectiveHeightSelector.first().val();
+    apiPerspective(selectedPoints, getBase64FromImg(currentImage), height, width);
+}
+
+function smoothHandler() {
+    const points = JSON.parse(outputArea.first().text());
+    const iterations = smoothIterationsSelector.first().val();
+    apiSmooth(points, iterations);
+}
+
+function convertAreaHandler() {
+    const l = selectedPoints.length;
+    if (l < 2) return;
+
+    const points = JSON.parse(outputArea.first().text());
+    apiConvertArea(
+        points,
+        selectedPoints[l - 2][0],
+        selectedPoints[l - 1][0],
+        selectedPoints[l - 2][1],
+        selectedPoints[l - 1][1],
+        parseInt(inputX1.val()),
+        parseInt(inputX2.val()),
+        parseInt(inputY1.val()),
+        parseInt(inputY2.val())
+    );
 }
 
 function selectPointHandler(e) {
@@ -102,6 +139,7 @@ function selectPointHandler(e) {
     if (selectedPoints.length > 4) selectedPoints.shift();
     console.log(selectedPoints);
 }
+
 
 function apiImage(base64, callback) {
     const json = JSON.stringify({ image: base64 });
@@ -170,6 +208,33 @@ function apiPerspective(points, base64, height, width) {
         imageIsUploaded = true;
         imageId = result.imageId;
         currentImage.attr('src', IMAGE_SRC_PREFIX + result.image);
+    });
+}
+
+function apiSmooth(points, maxIteration) {
+    const json = JSON.stringify({
+        points: points,
+        maxIteration: maxIteration
+    });
+    $.post('/api/smooth', json, (result) => {
+        outputArea.first().text(JSON.stringify(result.points));
+    });
+}
+
+function apiConvertArea(points, sx1, sx2, sy1, sy2, ex1, ex2, ey1, ey2) {
+    const json = JSON.stringify({
+        points: points,
+        srcSX: sx1,
+        srcSY: sy1,
+        srcEX: sx2,
+        srcEY: sy2,
+        dstSX: ex1,
+        dstSY: ey1,
+        dstEX: ex2,
+        dstEY: ey2
+    });
+    $.post('/api/convert/area', json, (result) => {
+        outputArea.first().text(JSON.stringify(result.points));
     });
 }
 
