@@ -25,7 +25,7 @@
                 </label>
             </div>
             <div id="canvas-wrapper" class="canvas-wrapper position-absolute top-50 start-50 translate-middle hidden">
-                <img id="image" src="">
+                <canvas id="canvas"></canvas>
             </div>
             <div class="stages-panel position-absolute start-50 translate-middle-x d-flex align-items-center">
                 <div class="stage"><img src="/images/svg/image-plus-outline.svg"></div>
@@ -37,7 +37,26 @@
                 <div class="stage"><img src="/images/svg/arrow-top-right-bold-box-outline.svg"></div>
             </div>
         </div>
-        <div class="sidebar hidden" id="sidebar"></div>
+        <div class="sidebar d-flex flex-column hidden" id="sidebar">
+            <div class="magnifier-wrapper position-relative">
+                <div class="line-horizontal position-absolute top-50 start-50 translate-middle"></div>
+                <div class="line-vertical position-absolute top-50 start-50 translate-middle"></div>
+                <div class="circle position-absolute top-50 start-50 translate-middle"></div>
+                <canvas id="magnifier" width="300" height="300"></canvas>
+            </div>
+            <div>
+                <p>Кадрируйте и откорректируйте изображение для более точной работы с ним</p>
+            </div>
+            <div class="toolbar">
+                <div class="d-flex flex-row">
+                    <div class="stage stage-small stage-active stage-right"><img src="/images/svg/crop.svg"></div>
+                    <div class="stage stage-small"><img src="/images/svg/vector-square.svg"></div>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-primary">Далее</button>
+            </div>
+        </div>
     </div>
     <script type="text/javascript" src="/webjars/jquery/3.6.0/jquery.min.js"></script>
     <script type="module" src="/js/App.js"></script>

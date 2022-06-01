@@ -4,14 +4,9 @@ class FileDropper {
         this.fileInput = props.fileInput;
         this.onFileLoaded = $.Callbacks();
 
-        $(this.dropArea).on('dragenter', function(event) {
-            event.preventDefault();
-        });
-        $(this.dropArea).on('dragover', function(event) {
-            event.preventDefault();
-        });
+        $(this.dropArea).on('dragenter', (e) => e.preventDefault());
+        $(this.dropArea).on('dragover', (e) => e.preventDefault());
         $(this.dropArea).on('drop', (e) => this.dropFileHandler(e));
-
         $(this.fileInput).change((e) => this.inputFileHandler(e));
     }
 

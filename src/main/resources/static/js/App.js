@@ -1,5 +1,7 @@
+import Canvas from './Canvas.js';
 import FileDropper from './FileDropper.js';
 import FileHelper from './FileHelper.js';
+import Magnifier from './Magnifier.js';
 import StagesPanel from './StagesPanel.js';
 
 class App {
@@ -8,15 +10,14 @@ class App {
         this.stagesPanel = new StagesPanel({
             stages: $('.stage')
         });
-    }
 
-    init() {
         const dropper = new FileDropper({
             dropArea: $('#drop-area').get(0),
             fileInput: $('#file-input').get(0)
         });
-        console.log('init');
         dropper.onFileLoaded.add((e) => this.imageLoadedHandler(e));
+
+        console.log('app initialized');
     }
 
     imageLoadedHandler(event) {
@@ -46,11 +47,24 @@ class App {
         $('#drop-area').addClass('hidden');
         $('#canvas-wrapper').removeClass('hidden');
         $('#sidebar').removeClass('hidden');
-        $('#image').attr('src', this.image.base64.full);
-        this.stagesPanel.nextStage();
+
+        this.magnifier = new Magnifier({
+            magnifier: $('#magnifier').get(0)
+        });
+
+        this.canvas = new Canvas({
+            canvas: $('#canvas').get(0),
+            initWidth: parseInt($('#canvas-wrapper').css('width')),
+            initHeight: parseInt($('#canvas-wrapper').css('height')),
+            magnifier: this.magnifier
+        });
+
+        this.canvas.renderImage(this.image.base64.full).then(() => {
+            this.stagesPanel.nextStage();
+        });
     }
 }
 
-$(document).ready(new App().init());
+$(document).ready(new App());
 
 export default App;
