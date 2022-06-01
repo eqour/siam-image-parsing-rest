@@ -1,0 +1,13 @@
+:root {
+    --color-bg-sel: #4A5878;
+    --color-bg-hover: #383838;
+    --color-text: #FFFFFF;
+    --color-sel: #0C8CE9;
+    --color-sel-alt: #E47E45;
+    --color-tool-hover: #111111;
+    --color-tool-dis: #585858;
+    --color-bg-dropdown: #1E1E1E;
+    --color-bg: #2C2C2C;
+    --color-border: #444444;
+    --color-dis: #747474;
+}

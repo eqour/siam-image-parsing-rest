@@ -1,12 +1,27 @@
 body {
     margin: 0;
     padding: 0;
-    background: #1E1E1E;
+    background: var(--color-bg-dropdown);
 }
 
 .main-wrapper {
     width: 100%;
     height: 100vh;
+    min-height: 600px;
+}
+
+.workspace {
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar {
+    box-sizing: content-box;
+
+    width: 300px;
+    height: 100%;
+
+    border-left: 1px solid var(--color-border);
 }
 
 /* Dropper */
@@ -17,7 +32,7 @@ body {
     width: 591px;
     height: 270px;
 
-    border: 4px dashed #FFFFFF;
+    border: 4px dashed var(--color-text);
     border-radius: 15px;
 }
 
@@ -32,7 +47,7 @@ body {
     line-height: 19px;
     text-align: center;
 
-    color: #FFFFFF;
+    color: var(--color-text);
 }
 
 .dropper > .file-input {
@@ -46,7 +61,7 @@ body {
     width: 315px;
     height: 66px;
 
-    background: #0C8CE9;
+    background: var(--color-sel);
     border-radius: 5px;
 
     font-family: 'Open Sans';
@@ -57,15 +72,15 @@ body {
 
     text-align: center;
 
-    color: #FFFFFF;
+    color: var(--color-text);
 }
 
-/* Toolbox */
-.toolbox {
+/* Stages panel */
+.stages-panel {
     bottom: 2%;
 }
 
-.tool {
+.stage {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -76,12 +91,75 @@ body {
     margin-right: 8px;
     margin-left: 8px;
     
-    background: #585858;
+    background: var(--color-tool-dis);
     opacity: 0.5;
     border-radius: 5px;
 }
 
-.tool.tool-active {
-    background: #0C8CE9;
+.stage.stage-active {
+    background: var(--color-sel);
     opacity: 1;
+}
+
+.stage.stage-passed {
+    background: var(--color-tool-dis);
+    opacity: 1;
+}
+
+/* Logotype */
+.logo-wrapper {
+    width: 188px;
+    height: 47px;
+
+    top: 2%;
+}
+
+.logo-wrapper span {
+    color: var(--color-text);
+
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 19px;
+}
+
+.logo-wrapper .line {
+    width: 1px;
+    height: 100%;
+
+    background: var(--color-text);
+}
+
+.logo-wrapper img {
+    width: 62px;
+    height: 33px;
+}
+
+/* Canvas */
+.canvas-wrapper {
+    position: relative;
+
+    width: 80%;
+    height: 70%;
+}
+
+.canvas-wrapper > #image {
+    position: absolute;
+
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
+
+.hidden {
+    display: none !important;
 }
