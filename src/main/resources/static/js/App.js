@@ -3,19 +3,35 @@ import FileDropper from './FileDropper.js';
 import FileHelper from './FileHelper.js';
 import Magnifier from './Magnifier.js';
 import StagesPanel from './StagesPanel.js';
+import Toolbar from './Toolbar.js';
 
 class App {
     constructor(props) {
         this.image = undefined;
+
         this.stagesPanel = new StagesPanel({
-            stages: $('.stage')
+            stages: $('.item')
         });
+        this.stagesPanel.onNextStage.add((e) => this.nextStageHandler(e));
+        this.stagesPanel.onPrevStage.add((e) => this.prevStageHandler(e));
+
+        $('#btn-prev').click(() => this.stagesPanel.prevStage());
 
         const dropper = new FileDropper({
             dropArea: $('#drop-area').get(0),
             fileInput: $('#file-input').get(0)
         });
         dropper.onFileLoaded.add((e) => this.imageLoadedHandler(e));
+
+        this.toolbar = new Toolbar({
+            searchPrefix: 'tool-group'
+        });
+
+        const self = this;
+        $('#rotation-range').on('input', (e) => {
+            $('#rotation-text').attr('value', e.currentTarget.value);
+            self.canvas.rotate(parseInt(e.currentTarget.value));
+        });
 
         console.log('app initialized');
     }
@@ -44,24 +60,45 @@ class App {
     }
 
     afterFileUpload() {
-        $('#drop-area').addClass('hidden');
-        $('#canvas-wrapper').removeClass('hidden');
-        $('#sidebar').removeClass('hidden');
+        this.stagesPanel.nextStage();
+    }
 
-        this.magnifier = new Magnifier({
-            magnifier: $('#magnifier').get(0)
-        });
+    nextStageHandler(event) {
+        if (event.id > 0) this.toolbar.selectGroup(event.id - 1);
+        if (event.id == 1) {
+            $('#drop-area').addClass('hidden');
+            $('#canvas-wrapper').removeClass('hidden');
+            $('#sidebar').removeClass('hidden');
 
-        this.canvas = new Canvas({
-            canvas: $('#canvas').get(0),
-            initWidth: parseInt($('#canvas-wrapper').css('width')),
-            initHeight: parseInt($('#canvas-wrapper').css('height')),
-            magnifier: this.magnifier
-        });
+            if (this.magnifier === undefined) {
+                this.magnifier = new Magnifier({
+                    magnifier: $('#magnifier').get(0),
+                    coordXLabel: $('#coord-x').get(0),
+                    coordYLabel: $('#coord-y').get(0)
+                });
+            }
 
-        this.canvas.renderImage(this.image.base64.full).then(() => {
-            this.stagesPanel.nextStage();
-        });
+            if (this.canvas === undefined) {
+                this.canvas = new Canvas({
+                    canvas: $('#canvas').get(0),
+                    initWidth: parseInt($('#canvas-wrapper').css('width')),
+                    initHeight: parseInt($('#canvas-wrapper').css('height')),
+                    magnifier: this.magnifier
+                });
+            } else {
+                this.canvas.clear();
+            }
+
+            this.canvas.renderImage(this.image.base64.full);
+        }
+    }
+
+    prevStageHandler(event) {
+        if (event.id == 0) {
+            $('#drop-area').removeClass('hidden');
+            $('#canvas-wrapper').addClass('hidden');
+            $('#sidebar').addClass('hidden');
+        }
     }
 }
 

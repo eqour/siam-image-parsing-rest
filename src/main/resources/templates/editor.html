@@ -15,11 +15,11 @@
             <div class="logo-wrapper position-absolute start-50 translate-middle-x d-flex align-items-center justify-content-between">
                 <img src="/images/svg/logo.svg">
                 <div class="line"></div>
-                <div><span>Plot parser</span></div>
+                <div><span>Plot Parser</span></div>
             </div>
             <div id="drop-area" class="dropper position-absolute start-50 translate-middle d-flex flex-column align-items-center justify-content-center">
-                <p>Используйте drag & drop<br>или<br>добавьте картинку нажав на кнопку</p>
-                <label class="btn btn-primary file-input">
+                <p>Используйте drag & drop<br>(перетащите файл в область)<br>или добавьте картинку нажав на кнопку</p>
+                <label class="cbtn">
                     Загрузить картинку
                     <input id="file-input" type="file" hidden>
                 </label>
@@ -28,33 +28,62 @@
                 <canvas id="canvas"></canvas>
             </div>
             <div class="stages-panel position-absolute start-50 translate-middle-x d-flex align-items-center">
-                <div class="stage"><img src="/images/svg/image-plus-outline.svg"></div>
-                <div class="stage"><img src="/images/svg/crop.svg"></div>
-                <div class="stage"><img src="/images/svg/white-balance-sunny.svg"></div>
-                <div class="stage"><img src="/images/svg/circle-half-full.svg"></div>
-                <div class="stage"><img src="/images/svg/axis-arrow.svg"></div>
-                <div class="stage"><img src="/images/svg/chart-timeline-variant.svg"></div>
-                <div class="stage"><img src="/images/svg/arrow-top-right-bold-box-outline.svg"></div>
+                <div class="item item-muted"><img src="/images/svg/image-plus-outline.svg"></div>
+                <div class="item item-muted"><img src="/images/svg/crop.svg"></div>
+                <div class="item item-muted"><img src="/images/svg/white-balance-sunny.svg"></div>
+                <div class="item item-muted"><img src="/images/svg/circle-half-full.svg"></div>
+                <div class="item item-muted"><img src="/images/svg/axis-arrow.svg"></div>
+                <div class="item item-muted"><img src="/images/svg/chart-timeline-variant.svg"></div>
+                <div class="item item-muted"><img src="/images/svg/arrow-top-right-bold-box-outline.svg"></div>
             </div>
         </div>
-        <div class="sidebar d-flex flex-column hidden" id="sidebar">
+        <div id="sidebar" class="sidebar d-flex flex-column hidden">
             <div class="magnifier-wrapper position-relative">
                 <div class="line-horizontal position-absolute top-50 start-50 translate-middle"></div>
                 <div class="line-vertical position-absolute top-50 start-50 translate-middle"></div>
                 <div class="circle position-absolute top-50 start-50 translate-middle"></div>
+                <div class="coord-panel d-flex justify-content-center align-items-center">
+                    <span>x: <span id="coord-x"></span></span>
+                    <span>y: <span id="coord-y"></span></span>
+                </div>
                 <canvas id="magnifier" width="300" height="300"></canvas>
             </div>
-            <div>
+            <div id="stage-description">
                 <p>Кадрируйте и откорректируйте изображение для более точной работы с ним</p>
             </div>
             <div class="toolbar">
-                <div class="d-flex flex-row">
-                    <div class="stage stage-small stage-active stage-right"><img src="/images/svg/crop.svg"></div>
-                    <div class="stage stage-small"><img src="/images/svg/vector-square.svg"></div>
+                <div id="tool-group-0">
+                    <div class="tool-group">
+                        <div class="d-flex flex-row">
+                            <div id="tool-group-0-btn-0" class="item item-s item-btn item-active"><img src="/images/svg/crop.svg"></div>
+                            <div id="tool-group-0-btn-1" class="item item-s item-btn"><img src="/images/svg/vector-square.svg"></div>
+                        </div>
+                    </div>
+                    <div id="tool-group-0-0">
+                        <div class="tool-group">
+                            <p>Повернуть изображение</p>
+                            <input id="rotation-text" type="text" class="mb-2">
+                            <input id="rotation-range" type="range" min="-180" max="180">
+                        </div>
+                        <div class="tool-group">
+                            <p>Отразить</p>
+                            <div class="d-flex flex-row">
+                                <div class="item item-xs item-btn"><img src="/images/svg/flip-horizontal.svg"></div>
+                                <div class="item item-xs item-btn"><img src="/images/svg/flip-vertical.svg"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tool-group-0-1">
+                        <div class="tool-group">
+                            <p>Изменение перспективы по 4 углам</p>
+                            <button class="cbtn">Применить</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div>
-                <button class="btn btn-primary">Далее</button>
+            <div class="d-flex justify-content-between">
+                <button id="btn-prev" class="cbtn cbtn-secondary">Назад</button>
+                <button id="btn-next" class="cbtn">Далее</button>
             </div>
         </div>
     </div>

@@ -10,24 +10,51 @@ class Canvas {
         $(this.htmlCanvas).on('mousemove', (e) => self.magnifier.magnify(self.htmlCanvas, e.offsetX, e.offsetY));
     }
 
-    async renderImage(src) {
-        return new Promise((resolve, reject) => {
-            const image = new Image();
-            const self = this;
-            image.onload = function() {
-                const cnvWidth = self.htmlCanvas.width;
-                const cnvHeight = self.htmlCanvas.height;
-                const size = self.calcImageSize(cnvWidth, cnvHeight, image.width, image.height);
-                self.ctx.drawImage(
-                    image, (cnvWidth - size.width) / 2,
-                    (cnvHeight - size.height) / 2,
-                    size.width,
-                    size.height
-                );
-                resolve();
-            }
-            image.src = src;
-        });
+    renderImage(src) {
+        const image = new Image();
+        const self = this;
+        image.onload = function() {
+            const cnvWidth = self.htmlCanvas.width;
+            const cnvHeight = self.htmlCanvas.height;
+            const size = self.calcImageSize(cnvWidth, cnvHeight, image.width, image.height);
+            self.ctx.drawImage(
+                image, (cnvWidth - size.width) / 2,
+                (cnvHeight - size.height) / 2,
+                size.width,
+                size.height
+            );
+            self.cachedImage = {
+                image: image,
+                w: size.width,
+                h: size.height
+            };
+        }
+        image.src = src;
+    }
+
+    renderCachedImage() {
+        if (this.cachedImage === undefined) return;
+        const image = this.cachedImage.image;
+        const w = this.cachedImage.w;
+        const h = this.cachedImage.h;
+        const cnvWidth = this.htmlCanvas.width;
+        const cnvHeight = this.htmlCanvas.height;
+        this.ctx.drawImage(
+            image, (cnvWidth - w) / 2,
+            (cnvHeight - h) / 2,
+            w,
+            h
+        );
+    }
+
+    rotate(deg) {
+        this.ctx.save();
+        this.clear();
+        this.ctx.translate(this.htmlCanvas.width / 2, this.htmlCanvas.height / 2);
+        this.ctx.rotate(deg * Math.PI / 180);
+        this.ctx.translate(-this.htmlCanvas.width / 2, -this.htmlCanvas.height / 2);
+        this.renderCachedImage();
+        this.ctx.restore();
     }
 
     calcImageSize(cnvW, cnvH, imgW, imgH) {
@@ -50,11 +77,8 @@ class Canvas {
         };
     }
 
-    magnify(event) {
-        const x = event.offsetX;
-        const y = event.offsetY;
-        this.magnifierCtx.clearRect(0, 0, 300, 300);
-        this.magnifierCtx.drawImage(this.htmlCanvas, x - 70, y - 70, 140, 140, 0, 0, 300, 300);
+    clear() {
+        this.ctx.clearRect(0, 0, this.htmlCanvas.width, this.htmlCanvas.height);
     }
 }
 
