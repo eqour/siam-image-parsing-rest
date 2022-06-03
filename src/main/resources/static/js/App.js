@@ -8,6 +8,7 @@ import Toolbar from './Toolbar.js';
 class App {
     constructor(props) {
         this.image = undefined;
+        this.applicationContext = {};
 
         this.stagesPanel = new StagesPanel({
             stages: $('.item')
@@ -24,13 +25,38 @@ class App {
         dropper.onFileLoaded.add((e) => this.imageLoadedHandler(e));
 
         this.toolbar = new Toolbar({
-            searchPrefix: 'tool-group'
+            searchPrefix: 'tool-group',
+            appContext: this.applicationContext
         });
 
+        // Handle toolbar input
         const self = this;
         $('#rotation-range').on('input', (e) => {
-            $('#rotation-text').attr('value', e.currentTarget.value);
-            self.canvas.rotate(parseInt(e.currentTarget.value));
+            $('#rotation-text').val(e.currentTarget.value);
+            const istate = self.canvas.imageState;
+            istate.rotation = parseInt(e.currentTarget.value);
+            self.canvas.render();
+        });
+
+        $('#rotation-text').on('input', (e) => {
+            $('#rotation-range').val(e.currentTarget.value);
+            const istate = self.canvas.imageState;
+            istate.rotation = parseInt(e.currentTarget.value);
+            self.canvas.render();
+        });
+
+        $('#flip-horizontal').click((e) => {
+            $(e.currentTarget).toggleClass('item-active');
+            const istate = self.canvas.imageState;
+            istate.flipX = !istate.flipX;
+            self.canvas.render();
+        });
+
+        $('#flip-vertical').click((e) => {
+            $(e.currentTarget).toggleClass('item-active');
+            const istate = self.canvas.imageState;
+            istate.flipY = !istate.flipY;
+            self.canvas.render();
         });
 
         console.log('app initialized');
@@ -64,8 +90,7 @@ class App {
     }
 
     nextStageHandler(event) {
-        if (event.id > 0) this.toolbar.selectGroup(event.id - 1);
-        if (event.id == 1) {
+        if (event.id === 1) {
             $('#drop-area').addClass('hidden');
             $('#canvas-wrapper').removeClass('hidden');
             $('#sidebar').removeClass('hidden');
@@ -83,18 +108,24 @@ class App {
                     canvas: $('#canvas').get(0),
                     initWidth: parseInt($('#canvas-wrapper').css('width')),
                     initHeight: parseInt($('#canvas-wrapper').css('height')),
-                    magnifier: this.magnifier
+                    magnifier: this.magnifier,
+                    imageState: {
+                        rotation: 0,
+                        flipX: false,
+                        flipY: false
+                    }
                 });
-            } else {
-                this.canvas.clear();
+                this.applicationContext.canvas = this.canvas;
             }
 
-            this.canvas.renderImage(this.image.base64.full);
+            this.canvas.setImage(this.image.base64.full).then(() => this.canvas.render());
         }
+
+        if (event.id > 0) this.toolbar.selectGroup(event.id - 1);
     }
 
     prevStageHandler(event) {
-        if (event.id == 0) {
+        if (event.id === 0) {
             $('#drop-area').removeClass('hidden');
             $('#canvas-wrapper').addClass('hidden');
             $('#sidebar').addClass('hidden');

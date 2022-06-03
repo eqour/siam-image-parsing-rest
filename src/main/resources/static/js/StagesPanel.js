@@ -20,7 +20,7 @@ class StagesPanel {
     }
 
     prevStage() {
-        if (this.index == 0) return;
+        if (this.index === 0) return;
         const currentStage = $(this.stagesIcons[this.index]);
         currentStage.removeClass('item-active');
         currentStage.addClass('item-muted');

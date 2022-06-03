@@ -5,34 +5,94 @@ class Canvas {
         this.htmlCanvas.height = props.initHeight;
         this.ctx = this.htmlCanvas.getContext('2d');
         this.magnifier = props.magnifier;
+        this.imageState = props.imageState;
+        this.elements = [];
 
         const self = this;
-        $(this.htmlCanvas).on('mousemove', (e) => self.magnifier.magnify(self.htmlCanvas, e.offsetX, e.offsetY));
+        $(this.htmlCanvas).mousemove((e) => self.magnifier.magnify(self.htmlCanvas, e.offsetX, e.offsetY));
+
+        // Handle dragging canvas objects
+        this.mouseState = {
+            isDown: false,
+            target: null
+        }
+
+        $(this.htmlCanvas).mousedown((e) => {
+            self.mouseState.isDown = true;
+            for (let i = 0; i < self.elements.length; i++) {
+                const target = self.elements[i].getTarget(e.offsetX, e.offsetY);
+                if (target !== null) {
+                    self.mouseState.target = target;
+                    break;
+                }
+            }
+        });
+
+        $(this.htmlCanvas).mouseup((e) => {
+            self.mouseState.isDown = false;
+            self.mouseState.target = null;
+        });
+
+        $(this.htmlCanvas).mouseleave((e) => {
+            self.mouseState.isDown = false;
+            self.mouseState.target = null;
+        });
+
+        $(this.htmlCanvas).mousemove((e) => {
+            if (self.mouseState.isDown) {
+                const element = self.mouseState.target;
+                if (element !== undefined && element !== null) {
+                    element.setPosition(e.offsetX, e.offsetY);
+                    self.render();
+                }
+            }
+        });
     }
 
-    renderImage(src) {
+    async setImage(src) {
         const image = new Image();
         const self = this;
-        image.onload = function() {
-            const cnvWidth = self.htmlCanvas.width;
-            const cnvHeight = self.htmlCanvas.height;
-            const size = self.calcImageSize(cnvWidth, cnvHeight, image.width, image.height);
-            self.ctx.drawImage(
-                image, (cnvWidth - size.width) / 2,
-                (cnvHeight - size.height) / 2,
-                size.width,
-                size.height
-            );
-            self.cachedImage = {
-                image: image,
-                w: size.width,
-                h: size.height
-            };
-        }
-        image.src = src;
+        return new Promise((reslove, reject) => {
+            image.onload = function() {
+                const cnvWidth = self.htmlCanvas.width;
+                const cnvHeight = self.htmlCanvas.height;
+                const size = self.calcImageSize(cnvWidth, cnvHeight, image.width, image.height);
+                self.cachedImage = {
+                    image: image,
+                    w: size.width,
+                    h: size.height
+                };
+                reslove();
+            }
+            image.src = src;
+        });
     }
 
-    renderCachedImage() {
+    render() {
+        this.renderImage();
+        this.renderElements();
+    }
+
+    renderImage() {
+        const state = this.imageState;
+
+        this.ctx.save();
+        this.clear();
+
+        if (state !== undefined) {
+            if (state.rotation !== undefined) this.rotate(state.rotation);
+            if (state.flipX !== undefined || state.flipY !== undefined) this.flip(state.flipX, state.flipY);
+        }
+        
+        this.drawCachedImage();
+        this.ctx.restore();
+    }
+
+    renderElements() {
+        for (let i = 0; i < this.elements.length; i++) this.elements[i].render();
+    }
+
+    drawCachedImage() {
         if (this.cachedImage === undefined) return;
         const image = this.cachedImage.image;
         const w = this.cachedImage.w;
@@ -40,21 +100,31 @@ class Canvas {
         const cnvWidth = this.htmlCanvas.width;
         const cnvHeight = this.htmlCanvas.height;
         this.ctx.drawImage(
-            image, (cnvWidth - w) / 2,
+            image,
+            (cnvWidth - w) / 2,
             (cnvHeight - h) / 2,
             w,
             h
         );
     }
 
+    flip(flipX, flipY) {
+        if (flipX === undefined) flipX = 0;
+        if (flipY === undefined) flipY = 0;
+        const cnvWidth = this.htmlCanvas.width;
+        const cnvHeight = this.htmlCanvas.height;
+        this.ctx.translate(flipX ? cnvWidth : 0, flipY ? cnvHeight : 0);
+        this.ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1);
+    }
+
     rotate(deg) {
-        this.ctx.save();
-        this.clear();
         this.ctx.translate(this.htmlCanvas.width / 2, this.htmlCanvas.height / 2);
         this.ctx.rotate(deg * Math.PI / 180);
         this.ctx.translate(-this.htmlCanvas.width / 2, -this.htmlCanvas.height / 2);
-        this.renderCachedImage();
-        this.ctx.restore();
+    }
+
+    clear() {
+        this.ctx.clearRect(0, 0, this.htmlCanvas.width, this.htmlCanvas.height);
     }
 
     calcImageSize(cnvW, cnvH, imgW, imgH) {
@@ -77,8 +147,9 @@ class Canvas {
         };
     }
 
-    clear() {
-        this.ctx.clearRect(0, 0, this.htmlCanvas.width, this.htmlCanvas.height);
+    setElements(elements) {
+        this.elements = elements;
+        this.render();
     }
 }
 
