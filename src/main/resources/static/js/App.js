@@ -2,8 +2,11 @@ import Canvas from './Canvas.js';
 import FileDropper from './FileDropper.js';
 import FileHelper from './FileHelper.js';
 import Magnifier from './Magnifier.js';
+import ParsingAPI from './ParsingAPI.js';
 import StagesPanel from './StagesPanel.js';
 import Toolbar from './Toolbar.js';
+
+const IMAGE_DATA_PREFIX = 'data:image/png;base64,';
 
 class App {
     constructor(props) {
@@ -17,6 +20,7 @@ class App {
         this.stagesPanel.onPrevStage.add((e) => this.prevStageHandler(e));
 
         $('#btn-prev').click(() => this.stagesPanel.prevStage());
+        $('#btn-next').click(() => this.stagesPanel.nextStage());
 
         const dropper = new FileDropper({
             dropArea: $('#drop-area').get(0),
@@ -59,6 +63,27 @@ class App {
             self.canvas.render();
         });
 
+        $.ajaxSetup({
+            contentType: 'application/json; charset=UTF-8'
+        });
+
+        $('#perspective-btn').click(() => {
+            const points = self.canvas.elements[0].getPoints();
+            ParsingAPI.sendRequest('/api/perspective',
+                JSON.stringify({
+                    points: points,
+                    image: FileHelper.parseDataURL(self.canvas.getImageDataURL()).data,
+                    outputWidth: Math.round((Math.abs(points[1][0] - points[0][0]) + Math.abs(points[2][0] - points[3][0])) / 2),
+                    outputHeight: Math.round((Math.abs(points[3][1] - points[0][1]) + Math.abs(points[2][1] - points[1][1])) / 2)
+                })
+            )
+            .then((result) => {
+                self.image.id = result.imageId;
+                self.canvas.setImageState(Canvas.defaultImageState());
+                self.canvas.setImage(IMAGE_DATA_PREFIX + result.image);
+            });
+        });
+
         console.log('app initialized');
     }
 
@@ -73,14 +98,9 @@ class App {
     }
 
     processBase64Result(base64) {
-        const splitted = base64.split(',');
         this.image = {
             file: this.image.file,
-            base64: {
-                prefix: splitted[0] + ',',
-                data: splitted[1],
-                full: base64
-            }
+            base64: FileHelper.parseDataURL(base64)
         }
         this.afterFileUpload();
     }
@@ -90,7 +110,9 @@ class App {
     }
 
     nextStageHandler(event) {
-        if (event.id === 1) {
+        const stageId = event.id;
+
+        if (stageId === 1) {
             $('#drop-area').addClass('hidden');
             $('#canvas-wrapper').removeClass('hidden');
             $('#sidebar').removeClass('hidden');
@@ -108,28 +130,58 @@ class App {
                     canvas: $('#canvas').get(0),
                     initWidth: parseInt($('#canvas-wrapper').css('width')),
                     initHeight: parseInt($('#canvas-wrapper').css('height')),
-                    magnifier: this.magnifier,
-                    imageState: {
-                        rotation: 0,
-                        flipX: false,
-                        flipY: false
-                    }
+                    magnifier: this.magnifier
                 });
                 this.applicationContext.canvas = this.canvas;
             }
 
-            this.canvas.setImage(this.image.base64.full).then(() => this.canvas.render());
+            this.canvas.setImage(this.image.base64.full);
         }
 
-        if (event.id > 0) this.toolbar.selectGroup(event.id - 1);
+        if (stageId === 2) {
+            this.canvas.saveImage();
+
+            if (this.toolbar.subIndex === 0) {
+                const points = this.canvas.elements[0].getPoints();
+                this.image.base64 = FileHelper.parseDataURL(this.canvas.getSubImageDataURL(
+                    points[0][0],
+                    points[0][1],
+                    points[2][0] - points[0][0],
+                    points[2][1] - points[0][1]
+                ));
+                this.canvas.setImage(this.image.base64.full);
+            }
+
+            ParsingAPI.sendRequest('/api/image',
+                JSON.stringify({
+                    image: FileHelper.parseDataURL(this.canvas.getImageDataURL()).data
+                })
+            )
+            .then((result) => {
+                this.image.id = result.imageId;
+            });
+
+            this.canvas.setElements([]);
+        }
+
+        if (stageId > 0) this.toolbar.selectGroup(stageId - 1);
     }
 
     prevStageHandler(event) {
-        if (event.id === 0) {
+        const stageId = event.id;
+
+        if (stageId === 0) {
             $('#drop-area').removeClass('hidden');
             $('#canvas-wrapper').addClass('hidden');
             $('#sidebar').addClass('hidden');
         }
+
+        if (stageId === 1) {
+            this.canvas.restoreImage();
+            this.canvas.render();
+        }
+
+        if (stageId > 0) this.toolbar.selectGroup(stageId - 1);
     }
 }
 

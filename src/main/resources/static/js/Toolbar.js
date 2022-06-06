@@ -6,6 +6,7 @@ class Toolbar {
         this.appContext = props.appContext;
         this.groups = this.initGroups(props.searchPrefix);
         this.index = 0;
+        this.subIndex = 0;
         $(this.groups[this.index].group).removeClass('hidden');
     }
 
@@ -13,13 +14,13 @@ class Toolbar {
         let result = [];
         for (let i = 0;; i++) {
             const element = document.getElementById(groupIdPrefix + '-' + i);
-            if (element === undefined) break;
+            if (element == undefined) break;
             let subGroups = [];
             for (let j = 0;; j++) {
                 const element = document.getElementById(groupIdPrefix + '-' + i + '-' + j);
                 const btn = $('#' + groupIdPrefix + '-' + i + '-btn-' + j);
                 btn.click(() => this.selectSubGroup(j));
-                if (element === undefined) break;
+                if (element == undefined) break;
                 subGroups.push({
                     button: btn,
                     element: element
@@ -34,6 +35,7 @@ class Toolbar {
     }
 
     selectSubGroup(id) {
+        this.subIndex = id;
         this.handleSelection(this.index, id);
         for (let i = 0; i < this.groups[this.index].sub.length; i++) {
             let element = $(this.groups[this.index].sub[i].element);

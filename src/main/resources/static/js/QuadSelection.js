@@ -53,6 +53,17 @@ class QuadSelection extends CanvasElement {
         }
         return null;
     }
+
+    getPoints() {
+        const result = [];
+        for (let i = 0; i < this.corners.length; i++) {
+            result.push([
+                this.corners[i].x,
+                this.corners[i].y
+            ]);
+        }
+        return result;
+    }
 }
 
 export default QuadSelection;

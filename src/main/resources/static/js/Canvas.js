@@ -5,8 +5,9 @@ class Canvas {
         this.htmlCanvas.height = props.initHeight;
         this.ctx = this.htmlCanvas.getContext('2d');
         this.magnifier = props.magnifier;
-        this.imageState = props.imageState;
         this.elements = [];
+        this.imageHistory = [];
+        this.setImageState(Canvas.defaultImageState());
 
         const self = this;
         $(this.htmlCanvas).mousemove((e) => self.magnifier.magnify(self.htmlCanvas, e.offsetX, e.offsetY));
@@ -62,6 +63,8 @@ class Canvas {
                     w: size.width,
                     h: size.height
                 };
+                self.setImageState(Canvas.defaultImageState());
+                self.render();
                 reslove();
             }
             image.src = src;
@@ -69,6 +72,7 @@ class Canvas {
     }
 
     render() {
+        this.clear();
         this.renderImage();
         this.renderElements();
     }
@@ -77,7 +81,6 @@ class Canvas {
         const state = this.imageState;
 
         this.ctx.save();
-        this.clear();
 
         if (state !== undefined) {
             if (state.rotation !== undefined) this.rotate(state.rotation);
@@ -150,6 +153,59 @@ class Canvas {
     setElements(elements) {
         this.elements = elements;
         this.render();
+    }
+
+    getImageDataURL() {
+        this.clear();
+        this.renderImage();
+        const data = this.htmlCanvas.toDataURL();
+        this.renderElements();
+        return data;
+    }
+
+    getSubImageDataURL(x, y, w, h) {
+        this.clear();
+        this.renderImage();
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = w;
+        tempCanvas.height = h;
+        tempCanvas.getContext('2d').drawImage(this.htmlCanvas, x, y, w, h, 0, 0, w, h);
+        this.renderElements();
+        return tempCanvas.toDataURL();
+    }
+
+    setImageState(imageState) {
+        this.imageState = imageState;
+
+        $('#rotation-range').val(imageState.rotation);
+        $('#rotation-text').val(imageState.rotation);
+
+        if (imageState.flipX) $('#flip-horizontal').addClass('item-active');
+        else $('#flip-horizontal').removeClass('item-active');
+
+        if (imageState.flipY) $('#flip-vertical').addClass('item-active');
+        else $('#flip-vertical').removeClass('item-active');
+    }
+
+    saveImage() {
+        this.imageHistory.push({
+            cachedImage: this.cachedImage,
+            imageState: this.imageState
+        });
+    }
+
+    restoreImage() {
+        const prevData = this.imageHistory.pop();
+        this.cachedImage = prevData.cachedImage;
+        this.setImageState(prevData.imageState);
+    }
+    
+    static defaultImageState() {
+        return {
+            rotation: 0,
+            flipX: false,
+            flipY: false
+        };
     }
 }
 
