@@ -14,21 +14,30 @@ class ImageRender {
             image.onload = function() {
                 self.canvas.width = image.width;
                 self.canvas.height = image.height;
-                self.state.corrections.image = {
+                self.image = {
                     image: image,
                     w: image.width,
                     h: image.height
                 };
                 self.setImageState(ImageRender.defaultImageState());
-                self.render();
+                self.renderFraming();
                 reslove();
             }
             image.src = src;
         });
     }
 
-    render() {
+    renderColors() {
         this.clear();
+        this.ctx.globalCompositeOperation = 'copy';
+        this.changeColors();
+        this.draw();
+        this.resizeCanvasStyle();
+    }
+
+    renderFraming() {
+        this.clear();
+        this.ctx.globalCompositeOperation = 'source-over';
         this.renderImage();
         this.resizeCanvasStyle();
     }
@@ -56,7 +65,7 @@ class ImageRender {
     }
 
     rotate(degrees) {
-        let image = this.state.corrections.image.image;
+        let image = this.image.image;
         let degr = Math.abs(degrees % 90);
         let radr = this.toRad(degr);
         let rad = this.toRad(degrees);
@@ -69,7 +78,7 @@ class ImageRender {
     }
 
     draw() {
-        let image = this.state.corrections.image.image;
+        let image = this.image.image;
         this.ctx.drawImage(image, -image.width / 2, -image.height / 2);
         this.ctx.restore();
     }
@@ -98,22 +107,6 @@ class ImageRender {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    getImageDataURL() {
-        this.clear();
-        this.renderImage();
-        return this.canvas.toDataURL();
-    }
-
-    getSubImageDataURL(x, y, w, h) {
-        this.clear();
-        this.renderImage();
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = w;
-        tempCanvas.height = h;
-        tempCanvas.getContext('2d').drawImage(this.canvas, x, y, w, h, 0, 0, w, h);
-        return tempCanvas.toDataURL();
-    }
-
     setImageState(imageState) {
         this.imageState = imageState;
 
@@ -125,6 +118,11 @@ class ImageRender {
 
         if (imageState.flipY) $('#flip-vertical').addClass('item-active');
         else $('#flip-vertical').removeClass('item-active');
+    }
+
+    changeColors() {
+        this.ctx.save();
+        this.ctx.filter = 'saturate(' + this.state.colors.saturation + '%) brightness(' + this.state.colors.brightness + '%) contrast(' + this.state.colors.contrast + '%) invert(' + (this.state.colors.invert ? '100' : '0') + '%)';
     }
 
     static defaultImageState() {

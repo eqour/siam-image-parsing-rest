@@ -1,7 +1,7 @@
 class StagesPanel {
     constructor() {
         this.index = -1;
-        this.stagesIcons = document.getElementsByClassName('item');
+        this.stagesIcons = document.querySelectorAll('.stages-panel .item');
         this.onNextStage = $.Callbacks();
         this.onPrevStage = $.Callbacks();
         this.nextStage();

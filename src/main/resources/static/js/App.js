@@ -1,13 +1,10 @@
-import Canvas from './Canvas.js';
 import ImageRender from './canvas/Canvas2.js';
 import DrawCanvas from './canvas/DrawCanvas.js';
 import FileHelper from './helper/FileHelper.js';
 import ImageHelper from './helper/ImageHelper.js';
 import State from './model/State.js';
 import Magnifier from './Magnifier.js';
-import ParsingAPI from './helper/ParsingAPI.js';
 import StagesPanel from './StagesPanel.js';
-import Toolbar from './Toolbar.js';
 
 const IMAGE_DATA_PREFIX = 'data:image/png;base64,';
 
@@ -29,60 +26,37 @@ class App {
         $('#btn-next').click(() => this.stagesPanel.nextStage());
         this.initFileDropper();
 
-        this.toolbar = new Toolbar({
-            searchPrefix: 'tool-group',
-            appContext: this.applicationContext
-        });
-
-        // Handle toolbar input
         const self = this;
         $('#rotation-range').on('input', (e) => {
             $('#rotation-text').val(e.currentTarget.value);
             const istate = self.state.transform;
             istate.rotation = parseInt(e.currentTarget.value);
-            self.imageRender.render();
+            self.imageRender.renderFraming();
         });
 
         $('#rotation-text').on('input', (e) => {
             $('#rotation-range').val(e.currentTarget.value);
             const istate = self.state.transform;
             istate.rotation = parseInt(e.currentTarget.value);
-            self.imageRender.render();
+            self.imageRender.renderFraming();
         });
 
         $('#flip-horizontal').click((e) => {
             $(e.currentTarget).toggleClass('item-active');
             const istate = self.state.transform;
             istate.flipX = !istate.flipX;
-            self.imageRender.render();
+            self.imageRender.renderFraming();
         });
 
         $('#flip-vertical').click((e) => {
             $(e.currentTarget).toggleClass('item-active');
             const istate = self.state.transform;
             istate.flipY = !istate.flipY;
-            self.imageRender.render();
+            self.imageRender.renderFraming();
         });
 
         $.ajaxSetup({
             contentType: 'application/json; charset=UTF-8'
-        });
-
-        $('#perspective-btn').click(() => {
-            const points = self.canvas.elements[0].getPoints();
-            ParsingAPI.sendRequest('/api/perspective',
-                JSON.stringify({
-                    points: points,
-                    image: FileHelper.parseDataURL(self.canvas.getImageDataURL()).data,
-                    outputWidth: Math.round((Math.abs(points[1][0] - points[0][0]) + Math.abs(points[2][0] - points[3][0])) / 2),
-                    outputHeight: Math.round((Math.abs(points[3][1] - points[0][1]) + Math.abs(points[2][1] - points[1][1])) / 2)
-                })
-            )
-            .then((result) => {
-                self.image.id = result.imageId;
-                self.canvas.setImageState(Canvas.defaultImageState());
-                self.canvas.setImage(IMAGE_DATA_PREFIX + result.image);
-            });
         });
 
         this.initBtns();
@@ -115,72 +89,34 @@ class App {
         }
         function onFileLoad(file) {
             FileHelper.fileToBase64Async(file).then((base64) => {
-                app.state.image = {
-                    file: file,
-                    base64: FileHelper.parseDataURL(base64)
-                }
+                app.state.image = base64;
                 app.stagesPanel.nextStage();
             });
         }
     }
 
-    initCanvasAndMagnifier() {
-        if (this.canvas == null) {
-            let canvasWrapperRect = document.getElementById('canvas-wrapper').getBoundingClientRect();
-            this.canvas = new Canvas({
-                canvas: $('#canvas').get(0),
-                initWidth: parseInt(canvasWrapperRect.width),
-                initHeight: parseInt(canvasWrapperRect.height),
-                magnifier: this.magnifier
-            });
-            this.applicationContext.canvas = this.canvas;
-        }
-        let wrapRect = document.getElementById('canvas-wrapper').getBoundingClientRect();
-        this.drawCanvas.canvas.width = wrapRect.width;
-        this.drawCanvas.canvas.height = wrapRect.height;
-    }
-
     nextStageHandler(event) {
         const stageId = event.id;
-
+        console.log(stageId);
         if (stageId === 1) {
+            this.changeToolbar('tool-group-0');
             $('#drop-area').addClass('hidden');
             $('#canvas-wrapper').removeClass('hidden');
             $('#sidebar').removeClass('hidden');
-
-            this.initCanvasAndMagnifier();
-            this.imageRender.setImage(this.state.image.base64.full);
+            this.imageRender.setImage(this.state.image);
             this.drawCanvas.initDrawRectangleSelect();
-            // this.canvas.setImage(this.image.base64.full);
+        } else if (stageId === 2) {
+            this.changeToolbar('tool-group-1');
+            this.drawCanvas.initDisableDraw();
+        } else if (stageId === 3) {
+            this.changeToolbar('tool-group-2');
+        } else if (stageId === 4) {
+            this.changeToolbar('tool-group-3');
+            this.drawCanvas.initDrawAxes();
+        } else if (stageId === 5) {
+            this.changeToolbar('tool-group-4');
+            this.drawCanvas.initDrawPoints();
         }
-
-        if (stageId === 2) {
-            this.canvas.saveImage();
-
-            if (this.toolbar.subIndex === 0) {
-                const points = this.canvas.elements[0].getPoints();
-                this.state.image.base64 = FileHelper.parseDataURL(this.canvas.getSubImageDataURL(
-                    points[0][0],
-                    points[0][1],
-                    points[2][0] - points[0][0],
-                    points[2][1] - points[0][1]
-                ));
-                this.canvas.setImage(this.state.image.base64.full);
-            }
-
-            ParsingAPI.sendRequest('/api/image',
-                JSON.stringify({
-                    image: FileHelper.parseDataURL(this.canvas.getImageDataURL()).data
-                })
-            )
-            .then((result) => {
-                this.image.id = result.imageId;
-            });
-
-            this.canvas.setElements([]);
-        }
-
-        if (stageId > 0) this.toolbar.selectGroup(stageId - 1);
     }
 
     prevStageHandler(event) {
@@ -196,11 +132,10 @@ class App {
             this.canvas.restoreImage();
             this.canvas.render();
         }
-
-        if (stageId > 0) this.toolbar.selectGroup(stageId - 1);
     }
 
     initBtns() {
+        // stage 1
         let imgEditBtn = document.getElementById('img-edit-btn');
         let self = this;
         imgEditBtn.onclick = function () {
@@ -209,10 +144,82 @@ class App {
             self.state.transform.flipY = false;
             let points = self.drawCanvas.convertPointsToImageCanvasSize(self.state.transform.rectangle);
             let cutOptions = ImageHelper.prepareRectanglePoints(points);
-            let cutSrc = ImageHelper.cutImage(self.imageRender.canvas, cutOptions.x, cutOptions.y, cutOptions.w, cutOptions.h);
-            self.imageRender.setImage(cutSrc);
+            self.state.image = ImageHelper.cutImage(self.imageRender.canvas, cutOptions.x, cutOptions.y, cutOptions.w, cutOptions.h);
+            self.imageRender.setImage(self.state.image);
             self.updateFramingView();
         }
+        document.getElementById('perspective-btn').onclick = function () {
+            let points = self.drawCanvas.convertPointsToImageCanvasSize(self.state.transform.perspective);
+            let prepared = [points[0], points[3], points[2], points[1]];
+            ImageHelper.changePerspective(self.imageRender.canvas.toDataURL(), prepared,function (result) {
+                self.state.image = IMAGE_DATA_PREFIX + result.image;
+                self.imageRender.setImage(self.state.image);
+                self.state.setDefaultTransform();
+            });
+        }
+        this.togglePanel(document.getElementById('tool-group-0-btn-0'), 'tool-group-0-subs', 'tool-group-0-0', '#tool-group-0 .tabs', function (){
+            self.drawCanvas.initDrawRectangleSelect();
+            self.state.setDefaultTransform();
+            self.imageRender.renderFraming();
+        });
+        this.togglePanel(document.getElementById('tool-group-0-btn-1'), 'tool-group-0-subs', 'tool-group-0-1', '#tool-group-0 .tabs', function (){
+            self.drawCanvas.initDrawPolygonSelect();
+            self.state.setDefaultTransform();
+            self.imageRender.renderFraming();
+        });
+        // stage 2
+        let contrast = document.getElementById('contrast-range');
+        contrast.value = this.state.colors.contrast;
+        contrast.oninput = function (e) {
+            self.state.setContrast(parseInt(contrast.value));
+            self.imageRender.renderColors();
+        }
+        let brightness = document.getElementById('brightness-range');
+        brightness.value = this.state.colors.contrast;
+        brightness.oninput = function (e) {
+            self.state.setBrightness(parseInt(brightness.value));
+            self.imageRender.renderColors();
+        }
+
+        let saturation = document.getElementById('saturation-range');
+        saturation.value = this.state.colors.contrast;
+        saturation.oninput = function (e) {
+            self.state.setSaturation(parseInt(saturation.value));
+            self.imageRender.renderColors();
+        }
+        let invert = document.getElementById('invert-cb');
+        invert.onchange = function () {
+            self.state.setInvert(invert.checked);
+            self.imageRender.renderColors();
+        }
+
+
+    }
+
+    togglePanel(button, subsId, enableGroupId, queryForTabs, action) {
+        button.onclick = function () {
+            if (!button.classList.contains('item-active')) {
+                let tabs = document.querySelector(queryForTabs).children;
+                for (let i = 0; i < tabs.length; i++) {
+                    tabs[i].classList.remove('item-active');
+                }
+                button.classList.add('item-active');
+                let subs = document.getElementById(subsId).children;
+                for (let i = 0; i < subs.length; i++) {
+                    subs[i].classList.add('d-none');
+                }
+                document.getElementById(enableGroupId).classList.remove('d-none');
+                action();
+            }
+        }
+    }
+
+    changeToolbar(toolId) {
+        let tools = document.querySelector('.toolbar').children;
+        for (let i = 0; i < tools.length; i++) {
+            tools[i].classList.add('d-none');
+        }
+        document.getElementById(toolId).classList.remove('d-none');
     }
 
     updateFramingView() {

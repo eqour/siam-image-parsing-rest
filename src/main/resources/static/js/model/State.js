@@ -6,16 +6,57 @@ class State {
         this.stage = 0;
         this.image = null;
         this.transform = State.createDefaultTransform();
-        this.corrections = {image: null};
+        this.colors = State.createDefaultColors();
         this.selection = State.createDefaultSelection();
         this.axes = State.createDefaultAxes();
         this.parsing = State.createDefaultParsing();
     }
 
+    setDefaultTransform() {
+        this.transform.rotation = 0;
+        this.transform.flipX = false;
+        this.transform.flipY = false;
+        let rectangle = State.createCorners();
+        for (let i = 0; i < rectangle.length; i++) {
+            this.transform.rectangle[i][0] = rectangle[i][0];
+            this.transform.rectangle[i][1] = rectangle[i][1];
+            this.transform.perspective[i][0] = rectangle[i][0];
+            this.transform.perspective[i][1] = rectangle[i][1];
+        }
+    }
+
+    setContrast(value) {
+        this.colors.contrast = value;
+    }
+
+
+    setBrightness(value) {
+        this.colors.brightness = value;
+    }
+
+    setSaturation(value) {
+        this.colors.saturation = value;
+    }
+
+    setInvert(value) {
+        this.colors.invert = value;
+    }
+
+    setDefaultColor() {
+        this.colors.contrast = 100;
+        this.colors.brightness = 100;
+        this.colors.saturation = 100;
+        this.colors.invert = false;
+    }
+
+    static createDefaultColors() {
+        return {contrast: 100, brightness: 100, saturation: 100, invert:false}
+    }
+
     static createDefaultAxes() {
         return {
-            x: this.createDefaultAxis(),
-            y: this.createDefaultAxis()
+            x: this.createDefaultAxis([0.2, 0.5], [0.8, 0.5]),
+            y: this.createDefaultAxis([0.2, 0.2], [0.2, 0.8])
         }
     }
 
@@ -23,7 +64,7 @@ class State {
         return {
             color: null,
             colorDifference: 20,
-            points: []
+            points: [[10, 10], [50, 50], [500, 500], [510, 500], [520, 500], [530, 500]]
         }
     }
 
@@ -31,11 +72,11 @@ class State {
         return {pixels: [], pencil: 10, eraser: 10}
     }
 
-    static createDefaultAxis() {
+    static createDefaultAxis(start, end) {
         return {
             type: AXIS_LINEAR,
-            start: [],
-            end: [],
+            start: start,
+            end: end,
             enableUnits: false,
             unitType: null,
             unit: null

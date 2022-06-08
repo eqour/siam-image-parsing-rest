@@ -58,37 +58,96 @@
                 </div>
                 <div class="toolbar">
                     <div id="tool-group-0">
-                    <div class="tool-group">
-                        <div class="d-flex flex-row">
-                            <div id="tool-group-0-btn-0" class="item item-s item-btn item-active"><img src="/images/svg/crop.svg"></div>
-                            <div id="tool-group-0-btn-1" class="item item-s item-btn"><img src="/images/svg/vector-square.svg"></div>
-                        </div>
-                    </div>
-                    <div id="tool-group-0-0">
                         <div class="tool-group">
-                            <p>Повернуть изображение</p>
-                            <input id="rotation-text" type="text" class="mb-2">
-                            <input id="rotation-range" type="range" min="-180" max="180">
-                        </div>
-                        <div class="tool-group">
-                            <p>Отразить</p>
-                            <div class="d-flex flex-row mb-3">
-                                <div id="flip-horizontal" class="item item-xs item-btn"><img src="/images/svg/flip-horizontal.svg"></div>
-                                <div id="flip-vertical" class="item item-xs item-btn"><img src="/images/svg/flip-vertical.svg"></div>
+                            <div class="d-flex flex-row tabs">
+                                <div id="tool-group-0-btn-0" class="item item-s item-btn item-active"><img src="/images/svg/crop.svg"></div>
+                                <div id="tool-group-0-btn-1" class="item item-s item-btn"><img src="/images/svg/vector-square.svg"></div>
                             </div>
-                            <button id="img-edit-btn" class="cbtn">Применить</button>
+                        </div>
+                        <div id="tool-group-0-subs">
+                            <div id="tool-group-0-0">
+                                <div class="tool-group">
+                                    <p>Повернуть изображение</p>
+                                    <input id="rotation-text" type="text" class="mb-2">
+                                    <input id="rotation-range" type="range" min="-180" max="180">
+                                </div>
+                                <div class="tool-group">
+                                    <p>Отразить</p>
+                                    <div class="d-flex flex-row mb-3">
+                                        <div id="flip-horizontal" class="item item-xs item-btn"><img src="/images/svg/flip-horizontal.svg"></div>
+                                        <div id="flip-vertical" class="item item-xs item-btn"><img src="/images/svg/flip-vertical.svg"></div>
+                                    </div>
+                                    <button id="img-edit-btn" class="cbtn">Применить</button>
+                                </div>
+                            </div>
+                            <div id="tool-group-0-1" class="d-none">
+                                <div class="tool-group">
+                                    <p>Изменение перспективы по 4 углам</p>
+                                    <button id="perspective-btn" class="cbtn">Применить</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div id="tool-group-0-1">
+                    <div id="tool-group-1">
                         <div class="tool-group">
-                            <p>Изменение перспективы по 4 углам</p>
-                            <button id="perspective-btn" class="cbtn">Применить</button>
+                            <p>Контрастность</p>
+                            <input id="contrast-range" type="range" min="0" max="200" step="1">
+                        </div>
+                        <div class="tool-group">
+                            <p>яркость</p>
+                            <input id="brightness-range" type="range"min="0" max="200" step="1">
+                        </div>
+                        <div class="tool-group">
+                            <p>насыщенность</p>
+                            <input id="saturation-range" type="range" min="0" max="200" step="1">
+                        </div>
+                        <div class="tool-group">
+                            <input id="invert-cb" type="checkbox">
+                            <label>инверсия цветов</label>
+                        </div>
+                    </div>
+                    <div id="tool-group-2">
+                        <div class="tool-group">
+                            <div class="d-flex flex-row tabs">
+                                <div id="add-rect-btn" class="item item-s item-btn item-active"><img src="/images/svg/plus.svg"></div>
+                                <div id="delete-rect-btn" class="item item-s item-btn"><img src="/images/svg/cross.svg"></div>
+                                <div id="pencil-btn" class="item item-s item-btn"><img src="/images/svg/brush.svg"></div>
+                                <div id="eraser-btn" class="item item-s item-btn"><img src="/images/svg/eraser.svg"></div>
+                            </div>
+                        </div>
+                        <div class="tool-group">
+                            <p>Размер кисти</p>
+                            <input id="pencil-range" type="range" min="1" max="200" step="1">
+                        </div>
+                        <div class="tool-group">
+                            <p>Размер ластика</p>
+                            <input id="eraser-range" type="range" min="1" max="200" step="1">
+                        </div>
+                    </div>
+                    <div id="tool-group-3">
+                        <div class="tool-group">
+                            <p>Ось - X</p>
+                        </div>
+                        <div class="tool-group">
+                            <p>Ось - Y</p>
+                        </div>
+                    </div>
+                    <div id="tool-group-4">
+                        <div class="tool-group">
+                            <div class="d-flex flex-row tabs">
+                                <div id="point-select-btn" class="item item-s item-btn item-active"><img src="/images/svg/cursor.svg"></div>
+                                <div id="point-edit-ptn" class="item item-s item-btn"><img src="/images/svg/pencil.svg"></div>
+                                <div id="point-eraser-btn" class="item item-s item-btn"><img src="/images/svg/eraser.svg"></div>
+                                <div id="point-dot-btn" class="item item-s item-btn"><img src="/images/svg/dot.svg"></div>
+                            </div>
+                        </div>
+                        <div class="tool-group">
+                            <p>Определите по цвету</p>
                         </div>
                     </div>
                 </div>
             </div>
-            </div>
-            <div class="d-flex justify-content-between">
+            <div class="d-flex">
                 <button id="btn-prev" class="cbtn cbtn-secondary">Назад</button>
                 <button id="btn-next" class="cbtn">Далее</button>
             </div>

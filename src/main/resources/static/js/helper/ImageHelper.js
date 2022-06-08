@@ -1,8 +1,6 @@
 import ParsingAPI from "./ParsingAPI.js";
 import FileHelper from "./FileHelper.js";
 
-const IMAGE_DATA_PREFIX = 'data:image/png;base64,';
-
 class ImageHelper {
 
     static prepareRectanglePoints(points) {
@@ -27,17 +25,18 @@ class ImageHelper {
         return tempCanvas.toDataURL();
     }
 
-    static changePerspective(img, points) {
+    static changePerspective(imgBase64Full, points, then) {
         ParsingAPI.sendRequest('/api/perspective',
             JSON.stringify({
                 points: points,
-                image: FileHelper.parseDataURL(self.canvas.getImageDataURL()).data,
+                image: FileHelper.parseDataURL(imgBase64Full).data,
                 outputWidth: Math.round((Math.abs(points[1][0] - points[0][0]) + Math.abs(points[2][0] - points[3][0])) / 2),
                 outputHeight: Math.round((Math.abs(points[3][1] - points[0][1]) + Math.abs(points[2][1] - points[1][1])) / 2)
             })
-        )
+        ).then((result) => {
+            then(result);
+        });
     }
-
 }
 
 export default ImageHelper
