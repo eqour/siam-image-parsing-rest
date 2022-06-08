@@ -1,9 +1,9 @@
 class Magnifier {
-    constructor(props) {
-        this.canvas = props.magnifier;
+    constructor(canvas, xLabel, yLabel) {
+        this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d');
-        this.coordXLabel = props.coordXLabel;
-        this.coordYLabel = props.coordYLabel;
+        this.coordXLabel = xLabel;
+        this.coordYLabel = yLabel;
     }
 
     magnify(sourceCanvas, x, y) {

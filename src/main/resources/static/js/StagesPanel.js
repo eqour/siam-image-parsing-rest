@@ -1,32 +1,33 @@
 class StagesPanel {
-    constructor(props) {
+    constructor() {
         this.index = -1;
-        this.stagesIcons = props.stages;
+        this.stagesIcons = document.getElementsByClassName('item');
         this.onNextStage = $.Callbacks();
         this.onPrevStage = $.Callbacks();
         this.nextStage();
     }
 
-    nextStage() {
-        if (this.index >= 0) {
-            const currentStage = $(this.stagesIcons[this.index]);
-            currentStage.removeClass('item-active');
+    setStage(index) {
+        if (this.index !== index) {
+            if (this.index !== -1) this.stagesIcons[this.index].classList.remove('item-active');
+            this.stagesIcons[index].classList.add('item-active');
+            for (let i = 0; i <= index; i++) {
+                this.stagesIcons[i].classList.remove('item-muted');
+            }
+            for (let i = index + 1; i < this.stagesIcons.length; i++) {
+                this.stagesIcons[i].classList.add('item-muted');
+            }
+            this.index = index;
         }
-        this.index++;
-        const nextStage = $(this.stagesIcons[this.index]);
-        nextStage.removeClass('item-muted');
-        nextStage.addClass('item-active');
+    }
+
+    nextStage() {
+        this.setStage(this.index + 1);
         this.onNextStage.fire({id: this.index});
     }
 
     prevStage() {
-        if (this.index === 0) return;
-        const currentStage = $(this.stagesIcons[this.index]);
-        currentStage.removeClass('item-active');
-        currentStage.addClass('item-muted');
-        this.index--;
-        const prevStage = $(this.stagesIcons[this.index]);
-        prevStage.addClass('item-active');
+        this.setStage(this.index - 1);
         this.onPrevStage.fire({id: this.index});
     }
     

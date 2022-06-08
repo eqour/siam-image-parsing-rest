@@ -25,7 +25,9 @@
                 </label>
             </div>
             <div id="canvas-wrapper" class="canvas-wrapper position-absolute top-50 start-50 translate-middle hidden">
-                <canvas id="canvas"></canvas>
+                <canvas class="d-none" id="canvas"></canvas>
+                <canvas id="image-render"></canvas>
+                <canvas id="draw-render"></canvas>
             </div>
             <div class="stages-panel position-absolute start-50 translate-middle-x d-flex align-items-center">
                 <div class="item item-muted"><img src="/images/svg/image-plus-outline.svg"></div>
@@ -67,10 +69,11 @@
                         </div>
                         <div class="tool-group">
                             <p>Отразить</p>
-                            <div class="d-flex flex-row">
+                            <div class="d-flex flex-row mb-3">
                                 <div id="flip-horizontal" class="item item-xs item-btn"><img src="/images/svg/flip-horizontal.svg"></div>
                                 <div id="flip-vertical" class="item item-xs item-btn"><img src="/images/svg/flip-vertical.svg"></div>
                             </div>
+                            <button id="img-edit-btn" class="cbtn">Применить</button>
                         </div>
                     </div>
                     <div id="tool-group-0-1">
