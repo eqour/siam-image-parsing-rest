@@ -180,6 +180,10 @@ body {
     background: transparent;
 }
 
+.draw-selection {
+    opacity: 0.5;
+}
+
 /* Sidebar */
 .sidebar {
     box-sizing: content-box;
@@ -217,6 +221,10 @@ body {
     overflow-x: hidden;
     z-index: 0;
     height: calc(100vh - 394px);
+}
+
+.tool-scrollable.show-table {
+    top: 0;
 }
 
 .tool-scrollable::-webkit-scrollbar {

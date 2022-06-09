@@ -99,23 +99,26 @@ class App {
         const stageId = event.id;
         console.log(stageId);
         if (stageId === 1) {
-            this.changeToolbar('tool-group-0');
+            this.changeToolbar('tool-group-0', true);
             $('#drop-area').addClass('hidden');
             $('#canvas-wrapper').removeClass('hidden');
             $('#sidebar').removeClass('hidden');
             this.imageRender.setImage(this.state.image);
             this.drawCanvas.initDrawRectangleSelect();
         } else if (stageId === 2) {
-            this.changeToolbar('tool-group-1');
+            this.changeToolbar('tool-group-1', true);
             this.drawCanvas.initDisableDraw();
         } else if (stageId === 3) {
-            this.changeToolbar('tool-group-2');
+            this.changeToolbar('tool-group-2', true);
+            document.querySelector('#tool-group-2 .item-btn.item-active').click();
         } else if (stageId === 4) {
-            this.changeToolbar('tool-group-3');
+            this.changeToolbar('tool-group-3', true);
             this.drawCanvas.initDrawAxes();
         } else if (stageId === 5) {
-            this.changeToolbar('tool-group-4');
+            this.changeToolbar('tool-group-4', true);
             this.drawCanvas.initDrawPoints();
+        } else if (stageId === 6) {
+            this.changeToolbar('tool-group-5', false);
         }
     }
 
@@ -192,7 +195,28 @@ class App {
             self.state.setInvert(invert.checked);
             self.imageRender.renderColors();
         }
-
+        // stage 3
+        let areaSelectBtnsParent = document.querySelector('#tool-group-2 .tabs');
+        this.toggleAreaSelectBtns(document.getElementById('add-rect-btn'), areaSelectBtnsParent, function () {
+            self.drawCanvas.initDrawRectangles(true);
+        });
+        this.toggleAreaSelectBtns(document.getElementById('delete-rect-btn'), areaSelectBtnsParent, function () {
+            self.drawCanvas.initDrawRectangles(false);
+        });
+        this.toggleAreaSelectBtns(document.getElementById('pencil-btn'), areaSelectBtnsParent, function () {
+            self.drawCanvas.initDrawPencil(true);
+        });
+        this.toggleAreaSelectBtns(document.getElementById('eraser-btn'), areaSelectBtnsParent, function () {
+            self.drawCanvas.initDrawPencil(false);
+        });
+        let pencilRange = document.getElementById('pencil-range');
+        pencilRange.oninput = function () {
+            self.state.setPencil(parseInt(pencilRange.value));
+        }
+        let eraserRange = document.getElementById('eraser-range');
+        eraserRange.oninput = function () {
+            self.state.setEraser(parseInt(eraserRange.value));
+        }
 
     }
 
@@ -214,12 +238,32 @@ class App {
         }
     }
 
-    changeToolbar(toolId) {
+    toggleAreaSelectBtns(btn, btnsParent, action) {
+        btn.onclick = function () {
+            if (!btn.classList.contains('item-active')) {
+                for (let i = 0; i < btnsParent.children.length; i++) {
+                    let btn = btnsParent.children[i];
+                    btn.classList.remove('item-active');
+                }
+                btn.classList.add('item-active');
+                action();
+            }
+        }
+    }
+
+    changeToolbar(toolId, showMagnifier) {
         let tools = document.querySelector('.toolbar').children;
         for (let i = 0; i < tools.length; i++) {
             tools[i].classList.add('d-none');
         }
         document.getElementById(toolId).classList.remove('d-none');
+        if (showMagnifier) {
+            document.getElementById('magnifier-container').classList.remove('d-none');
+            document.querySelector('#sidebar .tool-scrollable').classList.remove('show-table');
+        } else {
+            document.getElementById('magnifier-container').classList.add('d-none');
+            document.querySelector('#sidebar .tool-scrollable').classList.add('show-table');
+        }
     }
 
     updateFramingView() {

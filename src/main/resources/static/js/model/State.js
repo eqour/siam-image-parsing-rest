@@ -42,6 +42,14 @@ class State {
         this.colors.invert = value;
     }
 
+    setPencil(value) {
+        this.selection.pencil = value;
+    }
+
+    setEraser(value) {
+        this.selection.eraser = value;
+    }
+
     setDefaultColor() {
         this.colors.contrast = 100;
         this.colors.brightness = 100;
@@ -69,7 +77,7 @@ class State {
     }
 
     static createDefaultSelection() {
-        return {pixels: [], pencil: 10, eraser: 10}
+        return {pixels: [], pencil: 101, eraser: 101}
     }
 
     static createDefaultAxis(start, end) {

@@ -6,6 +6,7 @@ class DrawCanvas {
         this.ctx = this.canvas.getContext('2d');
         this.state = state;
         this.magnifier = magnifier;
+        this.selectCanvas = null;
         this.bindWithMagnifier();
         this.drawAction = null;
     }
@@ -100,6 +101,92 @@ class DrawCanvas {
         this.canvas.onmousemove = function (e) {}
         this.clear();
     }
+
+    initDrawRectangles(isAdd) {
+        this.clear();
+        if (this.selectCanvas == null) {
+            this.selectCanvas = this.cloneCanvas(this.canvas);
+        }
+        this.canvas.classList.add('draw-selection');
+        this.drawAction = function () {
+            self.clear();
+            this.ctx.globalCompositeOperation = 'source-over';
+            self.ctx.drawImage(self.selectCanvas, 0, 0);
+        };
+        let self = this;
+        let isDown = false;
+
+        let start = null;
+        this.canvas.onmousedown = function (e) {
+            start = [e.offsetX, e.offsetY];
+            isDown = true;
+        }
+        this.canvas.onmouseup = function (e) {
+            isDown = false;
+            self.selectCanvas = self.cloneCanvas(self.canvas);
+        }
+        this.canvas.onmouseleave = function () {
+            isDown = false;
+        }
+        this.canvas.onmousemove = function (e) {
+            if (isDown) {
+                let end = [e.offsetX, e.offsetY];
+                if (!isAdd) {
+                    self.ctx.globalCompositeOperation = 'destination-out';
+                }
+                if (start != null) {
+                    self.drawRectangle(start, end, '#F02121');
+                }
+            }
+        }
+        this.drawAction();
+    }
+
+    initDrawPencil(isAdd) {
+        this.clear();
+        let self = this;
+        let isDown = false;
+        if (this.selectCanvas == null) {
+            this.selectCanvas = this.cloneCanvas(this.canvas);
+        }
+        this.canvas.classList.add('draw-selection');
+        let current = null;
+        this.drawAction = function () {
+            self.clear();
+            this.ctx.globalCompositeOperation = 'source-over';
+            self.ctx.drawImage(self.selectCanvas, 0, 0);
+        };
+
+        let pos = null;
+        this.canvas.onmousedown = function (e) {
+            isDown = true;
+            pos = [e.offsetX, e.offsetY];
+        }
+        this.canvas.onmouseup = function (e) {
+            isDown = false;
+            self.selectCanvas = self.cloneCanvas(self.canvas);
+        }
+        this.canvas.onmouseleave = function () {
+            isDown = false;
+        }
+        this.canvas.onmousemove = function (e) {
+            if (isDown) {
+                let current = [e.offsetX, e.offsetY];
+                let radius;
+                if (!isAdd) {
+                    radius = self.state.selection.eraser;
+                    self.ctx.globalCompositeOperation = 'destination-out';
+                } else {
+                    radius = self.state.selection.pencil;
+                }
+                if (pos != null) {
+                    self.drawPencil(pos, current, radius, '#F02121');
+                }
+            }
+        }
+        this.drawAction();
+    }
+
 
     initDrawAxes() {
         let xAxesPoints = [this.state.axes.x.start, this.state.axes.x.end];
@@ -287,6 +374,32 @@ class DrawCanvas {
         let x = pointOnCanvas.x / this.canvas.width * this.imageCanvas.width;
         let y = pointOnCanvas.y / this.canvas.height * this.imageCanvas.height;
         return [Math.round(x), Math.round(y)];
+    }
+
+    drawRectangle(start, end, color) {
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(start[0], start[1], end[0] - start[0], end[1] - start[1]);
+    }
+
+    cloneCanvas(oldCanvas) {
+        let newCanvas = document.createElement('canvas');
+        let context = newCanvas.getContext('2d');
+        newCanvas.width = oldCanvas.width;
+        newCanvas.height = oldCanvas.height;
+        context.drawImage(oldCanvas, 0, 0);
+        return newCanvas;
+    }
+
+    drawPencil(pos, current, radius, color) {
+        this.ctx.beginPath();
+        this.ctx.lineWidth = radius;
+        this.ctx.lineCap = 'round';
+        this.ctx.strokeStyle = color;
+        this.ctx.moveTo(pos[0], pos[1]);
+        pos[0] = current[0];
+        pos[1] = current[1];
+        this.ctx.lineTo(pos[0], pos[1]);
+        this.ctx.stroke();
     }
 }
 
