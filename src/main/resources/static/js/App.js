@@ -5,6 +5,7 @@ import ImageHelper from './helper/ImageHelper.js';
 import State from './model/State.js';
 import Magnifier from './Magnifier.js';
 import StagesPanel from './StagesPanel.js';
+import ParsingAPI from './helper/ParsingAPI.js';
 
 const IMAGE_DATA_PREFIX = 'data:image/png;base64,';
 
@@ -217,6 +218,53 @@ class App {
         eraserRange.oninput = function () {
             self.state.setEraser(parseInt(eraserRange.value));
         }
+        document.getElementById('temp').onclick = function () {
+            let canv = ImageHelper.cutByImage(self.imageRender.canvas, self.drawCanvas.canvas);
+            let base64Image = canv.toDataURL();
+            ParsingAPI.sendRequest('/api/image',
+                JSON.stringify({
+                    image: FileHelper.parseDataURL(base64Image).data
+                })
+            ).then((result) => {
+                    self.state.setResultImage({base64: base64Image, id: result.imageId});
+                    console.log(result);
+                });
+            // var dataURL = canv.toDataURL("image/png");
+            // var newTab = window.open('about:blank','image from canvas');
+            // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
+        }
+        // stage 4
+        let xAxisSelect = document.getElementById('X-axis-type');
+        xAxisSelect.value = this.state.axes.x.type;
+        xAxisSelect.oninput = function () {
+            self.state.setXAxisType(xAxisSelect.value);
+        }
+        let xAxisStart = document.getElementById('x-start');
+        xAxisStart.value = this.state.axes.x.value[0];
+        xAxisStart.oninput = function () {
+            self.state.setXAxisStart(parseFloat(xAxisStart.value));
+        }
+        let xAxisEnd = document.getElementById('x-end');
+        xAxisEnd.value = this.state.axes.x.value[1];
+        xAxisEnd.oninput = function () {
+            self.state.setXAxisEnd(parseFloat(xAxisEnd.value));
+        }
+        let yAxisSelect = document.getElementById('y-axis-type');
+        yAxisSelect.value = this.state.axes.y.type;
+        yAxisSelect.oninput = function () {
+            self.state.setYAxisType(yAxisSelect.value);
+        }
+        let yAxisStart = document.getElementById('y-start');
+        yAxisStart.value = this.state.axes.y.value[0];
+        yAxisStart.oninput = function () {
+            self.state.setYAxisStart(parseFloat(yAxisStart.value));
+        }
+        let yAxisEnd = document.getElementById('y-end');
+        yAxisEnd.value = this.state.axes.y.value[1];
+        yAxisEnd.oninput = function () {
+            self.state.setYAxisEnd(parseFloat(yAxisEnd.value));
+        }
+
 
     }
 

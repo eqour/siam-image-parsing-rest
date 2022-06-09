@@ -123,13 +123,80 @@
                             <p>Размер ластика</p>
                             <input id="eraser-range" type="range" min="1" max="201" step="1">
                         </div>
+                        <div class="tool-group">
+                            <button id="temp">Test</button>
+                        </div>
                     </div>
                     <div id="tool-group-3">
                         <div class="tool-group">
                             <p>Ось - X</p>
+                            <div class="mb-3">
+                                <label for="X-axis-type" class="form-label">Тип оси</label>
+                                <select id="X-axis-type" class="form-select">
+                                    <option value="line">Линейный</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="x-start" class="form-label">X - начальная точка</label>
+                                <input type="number" id="x-start" class="form-control" placeholder="Укажите значение для X1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="x-end" class="form-label">X - конечная точка</label>
+                                <input type="text" id="x-end" class="form-control" placeholder="Укажите значение для X2">
+                            </div>
+<!--                            <div class="form-check">-->
+<!--                                <input class="form-check-input" type="checkbox" id="x-using-units">-->
+<!--                                <label class="form-check-label" for="x-using-units">Единицы измерения</label>-->
+<!--                            </div>-->
+<!--                            <div class="units-x" id="unitsX">-->
+<!--                                <div class="mb-3">-->
+<!--                                    <label class="x-unit-label form-label" for="selectTypeX">Тип единиц измерения</label>-->
+<!--                                    <select id="selectTypeX" class="form-select">-->
+<!--                                        <option selected>Время</option>-->
+<!--                                    </select>-->
+<!--                                </div>-->
+<!--                                <div class="mb-3">-->
+<!--                                    <label class="y-unit-label form-label" for="selectUnitX">Выбор единицы</label>-->
+<!--                                    <select id="selectUnitX" class="form-select">-->
+<!--                                        <option selected>День</option>-->
+<!--                                    </select>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                         <div class="tool-group">
                             <p>Ось - Y</p>
+                            <div class="mb-3">
+                                <label for="y-axis-type" class="form-label">Тип оси</label>
+                                <select id="y-axis-type" class="form-select">
+                                    <option value="line">Линейный</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="y-start" class="form-label">Y - начальная точка</label>
+                                <input type="text" id="y-start" class="form-control" placeholder="Укажите значение для Y1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="y-end" class="form-label">Y - конечная точка</label>
+                                <input type="text" id="y-end" class="form-control" placeholder="Укажите значение для Y2">
+                            </div>
+<!--                            <div class="form-check">-->
+<!--                                <input class="form-check-input" type="checkbox" id="y-using-units">-->
+<!--                                <label class="form-check-label" for="y-using-units">Единицы измерения</label>-->
+<!--                            </div>-->
+<!--                            <div class="units-y" id="unitsY">-->
+<!--                                <div class="mb-3">-->
+<!--                                    <label class="y-unit-label form-label" for="selectTypeY">Тип единиц измерения</label>-->
+<!--                                    <select id="selectTypeY" class="form-select">-->
+<!--                                        <option selected>Время</option>-->
+<!--                                    </select>-->
+<!--                                </div>-->
+<!--                                <div class="mb-3">-->
+<!--                                    <label class="y-unit-label form-label" for="selectUnitY">Выбор единицы</label>-->
+<!--                                    <select id="selectUnitY" class="form-select">-->
+<!--                                        <option selected>День</option>-->
+<!--                                    </select>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                     </div>
                     <div id="tool-group-4">

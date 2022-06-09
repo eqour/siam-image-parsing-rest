@@ -68,13 +68,19 @@ class ImageRender {
         let image = this.image.image;
         let degr = Math.abs(degrees % 90);
         let radr = this.toRad(degr);
-        let rad = this.toRad(degrees);
-        let w = Math.ceil(image.width * Math.cos(radr) + image.height * Math.sin(radr));
-        let h = Math.ceil(image.width * Math.sin(radr) + image.height * Math.cos(radr));
+        let w;
+        let h;
+        if (Math.abs(degrees) % 180 < 90) {
+            h = Math.ceil(image.width * Math.sin(radr) + image.height * Math.cos(radr));
+            w = Math.ceil(image.width * Math.cos(radr) + image.height * Math.sin(radr));
+        } else {
+            h = Math.ceil(image.width * Math.cos(radr) + image.height * Math.sin(radr));
+            w = Math.ceil(image.width * Math.sin(radr) + image.height * Math.cos(radr));
+        }
         this.canvas.width = w;
         this.canvas.height = h;
         this.ctx.translate(w / 2, h / 2);
-        this.ctx.rotate(rad);
+        this.ctx.rotate(this.toRad(degrees));
     }
 
     draw() {

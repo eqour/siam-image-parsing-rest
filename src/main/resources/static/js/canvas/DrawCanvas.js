@@ -1,3 +1,5 @@
+import ImageHelper from "../helper/ImageHelper.js";
+
 class DrawCanvas {
     constructor(canvas, imageCanvas, state, magnifier) {
         this.imageCanvas = imageCanvas;
@@ -15,7 +17,7 @@ class DrawCanvas {
         let self = this;
         this.canvas.addEventListener('mousemove', function (e) {
             let p = self.convertPointToImageCanvas({x: e.offsetX, y: e.offsetY});
-            self.magnifier.magnify(self.imageCanvas, p[0], p[1]);
+            self.magnifier.magnify(self.imageCanvas, self.canvas, p[0], p[1], e.offsetX, e.offsetY);
         })
     }
 
@@ -105,7 +107,7 @@ class DrawCanvas {
     initDrawRectangles(isAdd) {
         this.clear();
         if (this.selectCanvas == null) {
-            this.selectCanvas = this.cloneCanvas(this.canvas);
+            this.selectCanvas = ImageHelper.cloneCanvas(this.canvas);
         }
         this.canvas.classList.add('draw-selection');
         this.drawAction = function () {
@@ -123,13 +125,14 @@ class DrawCanvas {
         }
         this.canvas.onmouseup = function (e) {
             isDown = false;
-            self.selectCanvas = self.cloneCanvas(self.canvas);
+            self.selectCanvas = ImageHelper.cloneCanvas(self.canvas);
         }
         this.canvas.onmouseleave = function () {
             isDown = false;
         }
         this.canvas.onmousemove = function (e) {
             if (isDown) {
+                self.drawAction();
                 let end = [e.offsetX, e.offsetY];
                 if (!isAdd) {
                     self.ctx.globalCompositeOperation = 'destination-out';
@@ -147,7 +150,7 @@ class DrawCanvas {
         let self = this;
         let isDown = false;
         if (this.selectCanvas == null) {
-            this.selectCanvas = this.cloneCanvas(this.canvas);
+            this.selectCanvas = ImageHelper.cloneCanvas(this.canvas);
         }
         this.canvas.classList.add('draw-selection');
         let current = null;
@@ -164,7 +167,7 @@ class DrawCanvas {
         }
         this.canvas.onmouseup = function (e) {
             isDown = false;
-            self.selectCanvas = self.cloneCanvas(self.canvas);
+            self.selectCanvas = ImageHelper.cloneCanvas(self.canvas);
         }
         this.canvas.onmouseleave = function () {
             isDown = false;
@@ -186,7 +189,6 @@ class DrawCanvas {
         }
         this.drawAction();
     }
-
 
     initDrawAxes() {
         let xAxesPoints = [this.state.axes.x.start, this.state.axes.x.end];
@@ -218,6 +220,7 @@ class DrawCanvas {
                 selected[1][0] = pixel.x;
                 selected[1][1] = pixel.y;
                 self.drawAction();
+                // console.log(points);
             }
         }
         this.clear();
@@ -379,15 +382,6 @@ class DrawCanvas {
     drawRectangle(start, end, color) {
         this.ctx.fillStyle = color;
         this.ctx.fillRect(start[0], start[1], end[0] - start[0], end[1] - start[1]);
-    }
-
-    cloneCanvas(oldCanvas) {
-        let newCanvas = document.createElement('canvas');
-        let context = newCanvas.getContext('2d');
-        newCanvas.width = oldCanvas.width;
-        newCanvas.height = oldCanvas.height;
-        context.drawImage(oldCanvas, 0, 0);
-        return newCanvas;
     }
 
     drawPencil(pos, current, radius, color) {

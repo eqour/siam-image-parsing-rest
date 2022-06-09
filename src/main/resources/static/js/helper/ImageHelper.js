@@ -37,6 +37,31 @@ class ImageHelper {
             then(result);
         });
     }
+
+    static cloneCanvas(oldCanvas) {
+        let newCanvas = document.createElement('canvas');
+        let context = newCanvas.getContext('2d');
+        newCanvas.width = oldCanvas.width;
+        newCanvas.height = oldCanvas.height;
+        context.drawImage(oldCanvas, 0, 0);
+        return newCanvas;
+    }
+
+    static cutByImage(canvasSource, canvasArea) {
+        let mask = document.createElement('canvas');
+        let maskContext = mask.getContext('2d');
+        mask.width = canvasSource.width;
+        mask.height = canvasSource.height;
+        maskContext.fillStyle = '#000000';
+        maskContext.fillRect(0, 0, canvasSource.width, canvasSource.height);
+        maskContext.globalCompositeOperation = 'destination-out';
+        maskContext.drawImage(canvasArea, 0,0, canvasSource.width, canvasSource.height);
+        let sourceClone = ImageHelper.cloneCanvas(canvasSource);
+        let sourceCloneCtx = sourceClone.getContext('2d');
+        sourceCloneCtx.globalCompositeOperation = 'destination-out';
+        sourceCloneCtx.drawImage(mask, 0, 0);
+        return sourceClone;
+    }
 }
 
 export default ImageHelper

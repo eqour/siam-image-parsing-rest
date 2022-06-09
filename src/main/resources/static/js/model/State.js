@@ -1,4 +1,4 @@
-const AXIS_LINEAR = 'linear';
+const AXIS_LINEAR = 'line';
 const AXIS_LOG = 'log';
 
 class State {
@@ -50,6 +50,34 @@ class State {
         this.selection.eraser = value;
     }
 
+    setResultImage(value) {
+        this.selection.resultImage = value;
+    }
+
+    setXAxisType(value) {
+        this.axes.x.type = value;
+    }
+
+    setXAxisStart(value) {
+        this.axes.x.value[0] = value;
+    }
+
+    setXAxisEnd(value) {
+        this.axes.x.value[1] = value;
+    }
+
+    setYAxisType(value) {
+        this.axes.y.type = value;
+    }
+
+    setYAxisStart(value) {
+        this.axes.y.value[0] = value;
+    }
+
+    setYAxisEnd(value) {
+        this.axes.y.value[1] = value;
+    }
+
     setDefaultColor() {
         this.colors.contrast = 100;
         this.colors.brightness = 100;
@@ -63,8 +91,8 @@ class State {
 
     static createDefaultAxes() {
         return {
-            x: this.createDefaultAxis([0.2, 0.5], [0.8, 0.5]),
-            y: this.createDefaultAxis([0.2, 0.2], [0.2, 0.8])
+            x: this.createDefaultAxis([0.2, 0.5], [0.8, 0.5], [0, 100]),
+            y: this.createDefaultAxis([0.2, 0.2], [0.2, 0.8], [0, 100])
         }
     }
 
@@ -77,14 +105,15 @@ class State {
     }
 
     static createDefaultSelection() {
-        return {pixels: [], pencil: 101, eraser: 101}
+        return {pixels: [], pencil: 101, eraser: 101, resultImage: {base64: null, id: null}}
     }
 
-    static createDefaultAxis(start, end) {
+    static createDefaultAxis(start, end, value) {
         return {
             type: AXIS_LINEAR,
             start: start,
             end: end,
+            value: value,
             enableUnits: false,
             unitType: null,
             unit: null
