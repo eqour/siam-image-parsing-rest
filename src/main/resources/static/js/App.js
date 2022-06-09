@@ -6,6 +6,7 @@ import State from './model/State.js';
 import Magnifier from './Magnifier.js';
 import StagesPanel from './StagesPanel.js';
 import ParsingAPI from './helper/ParsingAPI.js';
+import TextHelper from './helper/TextHelper.js';
 
 const IMAGE_DATA_PREFIX = 'data:image/png;base64,';
 
@@ -17,7 +18,6 @@ class App {
         this.magnifier = this.magnifier = new Magnifier(document.getElementById('magnifier'), document.getElementById('coord-x'), document.getElementById('coord-y'));
         this.drawCanvas = new DrawCanvas(document.getElementById('draw-render'), imageCanvas, this.state, this.magnifier);
         this.imageRender = new ImageRender(imageCanvas, document.getElementById('canvas-wrapper'), this.drawCanvas, this.state);
-        this.applicationContext = {};
 
         this.stagesPanel = new StagesPanel();
         this.stagesPanel.onNextStage.add((e) => this.nextStageHandler(e));
@@ -98,6 +98,7 @@ class App {
 
     nextStageHandler(event) {
         const stageId = event.id;
+        let self = this;
         console.log(stageId);
         if (stageId === 1) {
             this.changeToolbar('tool-group-0', true);
@@ -117,9 +118,24 @@ class App {
             this.drawCanvas.initDrawAxes();
         } else if (stageId === 5) {
             this.changeToolbar('tool-group-4', true);
-            this.drawCanvas.initDrawPoints();
         } else if (stageId === 6) {
             this.changeToolbar('tool-group-5', false);
+            let body = {
+                points: self.state.parsing.points,
+                srcSX: self.state.axes.x.start[0],
+                srcEX: self.state.axes.x.end[0],
+                srcSY: self.state.axes.y.end[1],
+                srcEY: self.state.axes.y.start[1],
+                dstSX: self.state.axes.x.value[0],
+                dstEX: self.state.axes.x.value[1],
+                dstSY: self.state.axes.y.value[0],
+                dstEY: self.state.axes.y.value[1],
+            };
+            ParsingAPI.sendRequest('/api/convert/area', JSON.stringify(body)).then((result) => {
+                self.state.setResultPoints(result.points);
+                self.updateResultTable();
+                self.drawCanvas.drawAction();
+            });
         }
     }
 
@@ -227,11 +243,10 @@ class App {
                 })
             ).then((result) => {
                     self.state.setResultImage({base64: base64Image, id: result.imageId});
-                    console.log(result);
                 });
-            // var dataURL = canv.toDataURL("image/png");
-            // var newTab = window.open('about:blank','image from canvas');
-            // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
+            var dataURL = canv.toDataURL("image/png");
+            var newTab = window.open('about:blank','image from canvas');
+            newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
         }
         // stage 4
         let xAxisSelect = document.getElementById('X-axis-type');
@@ -242,12 +257,12 @@ class App {
         let xAxisStart = document.getElementById('x-start');
         xAxisStart.value = this.state.axes.x.value[0];
         xAxisStart.oninput = function () {
-            self.state.setXAxisStart(parseFloat(xAxisStart.value));
+            self.state.setXAxisValueStart(parseFloat(xAxisStart.value));
         }
         let xAxisEnd = document.getElementById('x-end');
         xAxisEnd.value = this.state.axes.x.value[1];
         xAxisEnd.oninput = function () {
-            self.state.setXAxisEnd(parseFloat(xAxisEnd.value));
+            self.state.setXAxisValueEnd(parseFloat(xAxisEnd.value));
         }
         let yAxisSelect = document.getElementById('y-axis-type');
         yAxisSelect.value = this.state.axes.y.type;
@@ -257,15 +272,108 @@ class App {
         let yAxisStart = document.getElementById('y-start');
         yAxisStart.value = this.state.axes.y.value[0];
         yAxisStart.oninput = function () {
-            self.state.setYAxisStart(parseFloat(yAxisStart.value));
+            self.state.setYAxisValueStart(parseFloat(yAxisStart.value));
         }
         let yAxisEnd = document.getElementById('y-end');
         yAxisEnd.value = this.state.axes.y.value[1];
         yAxisEnd.oninput = function () {
-            self.state.setYAxisEnd(parseFloat(yAxisEnd.value));
+            self.state.setYAxisValueEnd(parseFloat(yAxisEnd.value));
+        }
+        // stage 5
+        let editPointBtnsParent = document.querySelector('#tool-group-4 .tabs');
+        this.toggleAreaSelectBtns(document.getElementById('point-select-btn'), editPointBtnsParent, function () {
+            self.drawCanvas.initDrawPoints();
+        });
+        this.toggleAreaSelectBtns(document.getElementById('point-edit-btn'), editPointBtnsParent, function () {
+            self.drawCanvas.initDrawPoints();
+        });
+        this.toggleAreaSelectBtns(document.getElementById('point-eraser-btn'), editPointBtnsParent, function () {
+            self.drawCanvas.initDrawPoints();
+        });
+        let colorPick = document.getElementById('colorInput');
+        colorPick.value = self.state.parsing.color;
+        colorPick.oninput = function () {
+            self.state.setColorPick(colorPick.value);
+        }
+        let colorDifferenceInput = document.getElementById('colorScatter');
+        let colorDifferenceRange = document.getElementById('colorScatterRange');
+        colorDifferenceInput.value = self.state.parsing.colorDifference;
+        colorDifferenceRange.value = self.state.parsing.colorDifference;
+        colorDifferenceInput.oninput = function () {
+            let value = parseInt(colorDifferenceInput.value);
+            self.state.setColorDifference(value);
+            colorDifferenceRange.value = value;
+        }
+        colorDifferenceRange.oninput = function () {
+            let value = parseInt(colorDifferenceRange.value);
+            self.state.setColorDifference(value);
+            colorDifferenceInput.value = value;
+        }
+        let pointEraser = document.getElementById('eraser-range2');
+        pointEraser.value = self.state.parsing.eraser;
+        pointEraser.oninput = function () {
+            self.state.setPointEraser(parseInt(pointEraser.value));
+        }
+        document.getElementById('detectDots').onclick = function () {
+            let rgb = ImageHelper.hexToRgb(self.state.parsing.color);
+            let body = {
+                color: {
+                    red: rgb.r,
+                    green: rgb.g,
+                    blue: rgb.b
+                },
+                colorDifference: self.state.parsing.colorDifference,
+                imageId: self.state.selection.resultImage.id
+            };
+            console.log(body);
+            ParsingAPI.sendRequest('/api/color/entire', JSON.stringify(body)).then((result) => {
+                console.log(result);
+                self.state.setParsePoints(result.pixels);
+                self.drawCanvas.drawAction();
+            });
         }
 
+        document.getElementById('optimizeDots').onclick = function () {
+            ParsingAPI.sendRequest('/api/smooth',
+                JSON.stringify({
+                    maxIteration: 100,
+                    points: self.state.parsing.points
+                })
+            ).then((result) => {
+                console.log(result);
+                self.state.setParsePoints(result.points);
+                self.drawCanvas.drawAction();
+            });
+        }
 
+        document.getElementById('kek').onclick = function () {
+            let p = self.state.result.points;
+            console.log(p);
+            for (let i = 0; i < p.length; i++) {
+                console.log(p[i][0] + '\t' + p[i][1]);
+            }
+        }
+
+    }
+
+    updateResultTable() {
+        let table = document.querySelector('#tool-group-5 .table');
+        let rows = Array.from(table.getElementsByClassName('table-row'));
+        for (let i = 0; i < rows.length; i++) {
+            rows[i].remove();
+        }
+        let points = this.state.result.points;
+        for (let i = 0; i < points.length; i++) {
+            let tr = document.createElement('tr');
+            tr.classList.add('table-row');
+            let x = document.createElement('td');
+            x.innerText = TextHelper.formatDoubleToString(points[i][0]);
+            let y = document.createElement('td');
+            y.innerText = TextHelper.formatDoubleToString(points[i][1]);
+            tr.appendChild(x);
+            tr.appendChild(y);
+            table.appendChild(tr);
+        }
     }
 
     togglePanel(button, subsId, enableGroupId, queryForTabs, action) {

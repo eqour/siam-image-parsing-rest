@@ -16,7 +16,7 @@ class DrawCanvas {
     bindWithMagnifier() {
         let self = this;
         this.canvas.addEventListener('mousemove', function (e) {
-            let p = self.convertPointToImageCanvas({x: e.offsetX, y: e.offsetY});
+            let p = self.convertPointToImageCanvas([e.offsetX, e.offsetY]);
             self.magnifier.magnify(self.imageCanvas, self.canvas, p[0], p[1], e.offsetX, e.offsetY);
         })
     }
@@ -43,22 +43,22 @@ class DrawCanvas {
         }
         this.canvas.onmousemove = function (e) {
             if (isDown && selected != null) {
-                let pixel = self.convertPixelToPoint([e.offsetX, e.offsetY]);
-                selected[1][0] = pixel.x;
-                selected[1][1] = pixel.y;
+                let relative = self.convertPixelToRelativePoint([e.offsetX, e.offsetY]);
+                selected[1][0] = relative[0];
+                selected[1][1] = relative[1];
                 let index = selected[0];
                 if (index === 0) {
-                    points[3][1] = pixel.y;
-                    points[1][0] = pixel.x;
+                    points[3][1] = relative[1];
+                    points[1][0] = relative[0];
                 } else if (index === 1) {
-                    points[2][1] = pixel.y;
-                    points[0][0] = pixel.x;
+                    points[2][1] = relative[1];
+                    points[0][0] = relative[0];
                 } else if (index === 2) {
-                    points[1][1] = pixel.y;
-                    points[3][0] = pixel.x;
+                    points[1][1] = relative[1];
+                    points[3][0] = relative[0];
                 } else if (index === 3) {
-                    points[0][1] = pixel.y;
-                    points[2][0] = pixel.x;
+                    points[0][1] = relative[1];
+                    points[2][0] = relative[0];
                 }
                 self.drawAction();
             }
@@ -87,9 +87,9 @@ class DrawCanvas {
         }
         this.canvas.onmousemove = function (e) {
             if (isDown && selected != null) {
-                let pixel = self.convertPixelToPoint([e.offsetX, e.offsetY]);
-                selected[1][0] = pixel.x;
-                selected[1][1] = pixel.y;
+                let pixel = self.convertPixelToRelativePoint([e.offsetX, e.offsetY]);
+                selected[1][0] = pixel[0];
+                selected[1][1] = pixel[1];
                 self.drawAction();
             }
         }
@@ -191,20 +191,26 @@ class DrawCanvas {
     }
 
     initDrawAxes() {
-        let xAxesPoints = [this.state.axes.x.start, this.state.axes.x.end];
-        let yAxesPoints = [this.state.axes.y.start, this.state.axes.y.end];
-        let points = [this.state.axes.x.start, this.state.axes.x.end, this.state.axes.y.start, this.state.axes.y.end];
+        function checkPoint(point) {
+            return isNaN(point[0]) || isNaN(point[1]);
+        }
+        if (checkPoint(this.state.axes.x.start) || checkPoint(this.state.axes.x.end) || checkPoint(this.state.axes.y.start) || checkPoint(this.state.axes.y.end)) {
+            this.state.setAxesDefaultStartEndByCanvas(this.imageCanvas);
+        }
         this.drawAction = function () {
             this.clear();
-            this.drawLine(yAxesPoints, '#1ABF21');
-            this.drawLine(xAxesPoints, '#0F9AFF');
+            let axisY = this.convertImagePixelToDrawPixelAll([this.state.axes.y.start, this.state.axes.y.end]);
+            let axisX = this.convertImagePixelToDrawPixelAll([this.state.axes.x.start, this.state.axes.x.end]);
+            this.drawLine(axisY, '#1ABF21');
+            this.drawLine(axisX, '#0F9AFF');
         };
         let self = this;
         let selected = null;
         let isDown = false;
         this.canvas.onmousedown = function (e) {
             isDown = true;
-            selected = self.findElement(points, e.offsetX, e.offsetY);
+            let points = [self.state.axes.x.start, self.state.axes.x.end, self.state.axes.y.start, self.state.axes.y.end];
+            selected = self.findElementInImage(points, e.offsetX, e.offsetY);
         }
         this.canvas.onmouseup = function (e) {
             isDown = false;
@@ -216,11 +222,10 @@ class DrawCanvas {
         }
         this.canvas.onmousemove = function (e) {
             if (isDown && selected != null) {
-                let pixel = self.convertPixelToPoint([e.offsetX, e.offsetY]);
-                selected[1][0] = pixel.x;
-                selected[1][1] = pixel.y;
+                let pixel = self.convertDrawPixelToImagePixel([e.offsetX, e.offsetY]);
+                selected[1][0] = pixel[0];
+                selected[1][1] = pixel[1];
                 self.drawAction();
-                // console.log(points);
             }
         }
         this.clear();
@@ -254,9 +259,9 @@ class DrawCanvas {
         }
         this.canvas.onmousemove = function (e) {
             if (isDown && selected != null) {
-                let pixel = self.convertPixelToPoint([e.offsetX, e.offsetY]);
-                selected[1][0] = pixel.x;
-                selected[1][1] = pixel.y;
+                let pixel = self.convertPixelToRelativePoint([e.offsetX, e.offsetY]);
+                selected[1][0] = pixel[0];
+                selected[1][1] = pixel[1];
                 self.drawAction();
             }
         }
@@ -268,8 +273,26 @@ class DrawCanvas {
         let inRadius = [];
         for (let i = 0; i < points.length; i++) {
             let point = points[i];
-            let converted = this.convertPointToPixels(point);
-            let d = this.distance(converted.x, converted.y, x, y);
+            let converted = this.convertRelativePointToPixels(point);
+            let d = this.distance(converted[0], converted[1], x, y);
+            if (d <= this.clickRadius) {
+                inRadius.push([d, [i, point]]);
+            }
+        }
+        if (inRadius.length !== 0) {
+            inRadius.sort((a,b) => a[0] - b[0]);
+            return inRadius[0][1];
+        } else {
+            return null;
+        }
+    }
+
+    findElementInImage(points, x, y) {
+        let inRadius = [];
+        for (let i = 0; i < points.length; i++) {
+            let point = points[i];
+            let converted = this.convertImagePixelToDrawPixel(point);
+            let d = this.distance(converted[0], converted[1], x, y);
             if (d <= this.clickRadius) {
                 inRadius.push([d, [i, point]]);
             }
@@ -295,9 +318,9 @@ class DrawCanvas {
         ctx.lineWidth = 1;
         let corners = points;
         for (let i = 0; i < corners.length; i++) {
-            const corner = this.convertPointToPixels(corners[i]);
-            if (i === 0) ctx.moveTo(corner.x, corner.y);
-            else ctx.lineTo(corner.x, corner.y);
+            const corner = this.convertRelativePointToPixels(corners[i]);
+            if (i === 0) ctx.moveTo(corner[0], corner[1]);
+            else ctx.lineTo(corner[0], corner[1]);
         }
         ctx.closePath();
         ctx.fill();
@@ -309,17 +332,14 @@ class DrawCanvas {
         ctx.beginPath();
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
-        let corners = points;
-        let converted = [];
-        for (let i = 0; i < corners.length; i++) {
-            let corner = this.convertPointToPixels(corners[i]);
-            converted.push(corner);
-            if (i === 0) ctx.moveTo(corner.x, corner.y);
-            else ctx.lineTo(corner.x, corner.y);
+        for (let i = 0; i < points.length; i++) {
+            let corner = points[i];
+            if (i === 0) ctx.moveTo(corner[0], corner[1]);
+            else ctx.lineTo(corner[0], corner[1]);
         }
         ctx.closePath();
         ctx.stroke();
-        this.drawCircles(converted, color, '#FFFFFF', 4);
+        this.drawCircles(points, color, '#FFFFFF', 4);
     }
 
     drawCircles(points, fillColor, strokeColor, radius) {
@@ -330,28 +350,43 @@ class DrawCanvas {
         for (let i = 0; i < points.length; i++) {
             ctx.beginPath();
             let corner = points[i];
-            ctx.arc(corner.x, corner.y, radius, 0, 2 * Math.PI, false);
+            ctx.arc(corner[0], corner[1], radius, 0, 2 * Math.PI, false);
             ctx.fill();
             ctx.stroke();
         }
         ctx.closePath();
     }
 
-    convertPointToPixels(point) {
+    convertRelativePointToPixels(point) {
         let w = this.canvas.width;
         let h = this.canvas.height;
-        return {x: w * point[0], y: h * point[1]};
-    }
-    convertPixelToPoint(pixel) {
-        let w = this.canvas.width;
-        let h = this.canvas.height;
-        return {x: pixel[0] / w, y: pixel[1] / h}
+        return [ w * point[0], h * point[1]];
     }
 
-    convertImagePixelToDrawPixel(pixel) {
+    convertPixelToRelativePoint(pixel) {
         let w = this.canvas.width;
         let h = this.canvas.height;
-        return {x: pixel[0] / w * this.canvas.width, y: pixel[1] / h * this.canvas.height}
+        return [pixel[0] / w, pixel[1] / h];
+    }
+
+    convertImagePixelToDrawPixel(imagePixel) {
+        let w = this.imageCanvas.width;
+        let h = this.imageCanvas.height;
+        return [Math.round(imagePixel[0] / w * this.canvas.width), Math.round(imagePixel[1] / h * this.canvas.height)];
+    }
+
+    convertImagePixelToDrawPixelAll(pixels) {
+        let converted = [];
+        for (let i = 0; i < pixels.length; i++) {
+            converted.push(this.convertImagePixelToDrawPixel(pixels[i]));
+        }
+        return converted;
+    }
+
+    convertDrawPixelToImagePixel(drawPixel) {
+        let w = this.canvas.width;
+        let h = this.canvas.height;
+        return [Math.round(drawPixel[0] / w * this.imageCanvas.width), Math.round(drawPixel[1] / h * this.imageCanvas.height)];
     }
 
     resize(width, height) {
@@ -368,14 +403,14 @@ class DrawCanvas {
     convertPointsToImageCanvasSize(points) {
         let converted = [];
         for (let i = 0; i < points.length; i++) {
-            converted.push(this.convertPointToImageCanvas(this.convertPointToPixels(points[i])));
+            converted.push(this.convertPointToImageCanvas(this.convertRelativePointToPixels(points[i])));
         }
         return converted;
     }
 
     convertPointToImageCanvas(pointOnCanvas) {
-        let x = pointOnCanvas.x / this.canvas.width * this.imageCanvas.width;
-        let y = pointOnCanvas.y / this.canvas.height * this.imageCanvas.height;
+        let x = pointOnCanvas[0] / this.canvas.width * this.imageCanvas.width;
+        let y = pointOnCanvas[1] / this.canvas.height * this.imageCanvas.height;
         return [Math.round(x), Math.round(y)];
     }
 

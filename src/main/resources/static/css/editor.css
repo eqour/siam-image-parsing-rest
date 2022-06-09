@@ -225,6 +225,7 @@ body {
 
 .tool-scrollable.show-table {
     top: 0;
+    height: calc(100vh - 188px);
 }
 
 .tool-scrollable::-webkit-scrollbar {
@@ -366,4 +367,25 @@ body {
 
 .canvas-container {
     position: relative;
+}
+
+label {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+#tool-group-5 {
+    margin: -20px;
+}
+
+legend {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
 }

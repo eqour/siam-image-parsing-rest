@@ -52,7 +52,6 @@ class ImageHelper {
         let maskContext = mask.getContext('2d');
         mask.width = canvasSource.width;
         mask.height = canvasSource.height;
-        maskContext.fillStyle = '#000000';
         maskContext.fillRect(0, 0, canvasSource.width, canvasSource.height);
         maskContext.globalCompositeOperation = 'destination-out';
         maskContext.drawImage(canvasArea, 0,0, canvasSource.width, canvasSource.height);
@@ -61,6 +60,15 @@ class ImageHelper {
         sourceCloneCtx.globalCompositeOperation = 'destination-out';
         sourceCloneCtx.drawImage(mask, 0, 0);
         return sourceClone;
+    }
+
+    static hexToRgb(hex) {
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
     }
 }
 

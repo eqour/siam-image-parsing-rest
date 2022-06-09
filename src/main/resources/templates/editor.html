@@ -203,23 +203,82 @@
                         <div class="tool-group">
                             <div class="d-flex flex-row tabs">
                                 <div id="point-select-btn" class="item item-s item-btn item-active"><img src="/images/svg/cursor.svg"></div>
-                                <div id="point-edit-ptn" class="item item-s item-btn"><img src="/images/svg/pencil.svg"></div>
+                                <div id="point-edit-btn" class="item item-s item-btn"><img src="/images/svg/pencil.svg"></div>
                                 <div id="point-eraser-btn" class="item item-s item-btn"><img src="/images/svg/eraser.svg"></div>
-                                <div id="point-dot-btn" class="item item-s item-btn"><img src="/images/svg/dot.svg"></div>
                             </div>
                         </div>
                         <div class="tool-group">
                             <p>Определите по цвету</p>
+                            <div class="mb-3">
+                                <label for="colorInput" class="form-label">Цвет</label>
+                                <input type="color" class="form-control form-control-color" id="colorInput" title="Выберите цвет выделения">
+                            </div>
+                            <div class="mb-3">
+                                <fieldset>
+                                    <legend>Разброс цвета</legend>
+                                    <input type="number" id="colorScatter" class="form-control" placeholder="Разброс">
+                                    <input id="colorScatterRange" class="mt-2 mb-2" type="range" min="1" max="201" step="1">
+                                </fieldset>
+                                <button type="button" class="btn btn-primary" id="detectDots">Определить точки</button>
+                            </div>
+                            <label for="eraser-range2" class="form-label">Размер ластика</label>
+                            <input id="eraser-range2" type="range" min="1" max="201" step="1">
+                            <p class="mt-3">Оптимизация точек</p>
+                            <p>Наш алгоритм оптимизирует данные (удаление совпадающих или лишних точек)</p>
+                            <button type="button" class="btn btn-primary" id="optimizeDots">Оптимизировать</button>
                         </div>
                     </div>
                     <div id="tool-group-5">
+                        <table class="table table-dark table-sm mb-0">
+                            <!--                            <tr>-->
+                            <!--                                <th>-->
+                            <!--                                    <select id="x-unit-table w-50" class="form-select">-->
+                            <!--                                        <option selected>Единица1</option>-->
+                            <!--                                        <option>Единица2</option>-->
+                            <!--                                        <option>Единица3</option>-->
+                            <!--                                    </select>-->
+                            <!--                                </th>-->
+                            <!--                                <th>-->
+                            <!--                                    <select id="y-unit-table w-50" class="form-select">-->
+                            <!--                                        <option selected>Единица1</option>-->
+                            <!--                                        <option>Единица2</option>-->
+                            <!--                                        <option>Единица3</option>-->
+                            <!--                                    </select>-->
+                            <!--                                </th>-->
+                            <!--                            </tr>-->
 
+                            <tr>
+                                <th>Единица x</th>
+                                <th>Единица y</th>
+                            </tr>
+
+                            <tr class="table-row">
+                                <td>15</td>
+                                <td>22</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td>15</td>
+                                <td>22</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td>15</td>
+                                <td>22</td>
+                            </tr>
+                        </table>
+                        <button id="kek">KEK</button>
                     </div>
                 </div>
             </div>
-            <div class="d-flex">
-                <button id="btn-prev" class="cbtn cbtn-secondary">Назад</button>
-                <button id="btn-next" class="cbtn">Далее</button>
+            <div class="d-flex flex-wrap" style="max-width: 300px;">
+                <div class="prev-next-buttons d-flex flex-wrap w-100" style="justify-content: space-between;">
+                    <button id="btn-prev" class="cbtn cbtn-secondary">Назад</button>
+                    <button id="btn-next" class="cbtn">Далее</button>
+                </div>
+                <div class="save-buttons d-none" style="width: 260px;">
+                    <button type="button" class="btn btn-primary w-100 mb-3" id="saveTxt">Сохранить как .txt</button>
+                    <button type="button" class="btn btn-primary w-100 mb-3" id="saveXlsx">Сохранить как .xlsx</button>
+                    <button type="button" class="btn btn-primary w-100" id="saveToCache">В буфер обмена</button>
+                </div>
             </div>
         </div>
     </div>

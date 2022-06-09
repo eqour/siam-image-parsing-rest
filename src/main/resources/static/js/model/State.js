@@ -10,6 +10,7 @@ class State {
         this.selection = State.createDefaultSelection();
         this.axes = State.createDefaultAxes();
         this.parsing = State.createDefaultParsing();
+        this.result = {points: []};
     }
 
     setDefaultTransform() {
@@ -58,11 +59,11 @@ class State {
         this.axes.x.type = value;
     }
 
-    setXAxisStart(value) {
+    setXAxisValueStart(value) {
         this.axes.x.value[0] = value;
     }
 
-    setXAxisEnd(value) {
+    setXAxisValueEnd(value) {
         this.axes.x.value[1] = value;
     }
 
@@ -70,12 +71,63 @@ class State {
         this.axes.y.type = value;
     }
 
-    setYAxisStart(value) {
+    setYAxisValueStart(value) {
         this.axes.y.value[0] = value;
     }
 
-    setYAxisEnd(value) {
+    setYAxisValueEnd(value) {
         this.axes.y.value[1] = value;
+    }
+
+    setXAxisStart(value) {
+        this.axes.x.start[0] = value[0];
+        this.axes.x.start[1] = value[1];
+    }
+
+    setXAxisEnd(value) {
+        this.axes.x.end[0] = value[0];
+        this.axes.x.end[1] = value[1];
+    }
+
+    setYAxisStart(value) {
+        this.axes.y.start[0] = value[0];
+        this.axes.y.start[1] = value[1];
+    }
+
+    setYAxisEnd(value) {
+        this.axes.y.end[0] = value[0];
+        this.axes.y.end[1] = value[1];
+    }
+
+    setAxesDefaultStartEndByCanvas(canvas) {
+        this.axes.x.start[0] = Math.round(canvas.width * 0.2);
+        this.axes.x.start[1] = Math.round(canvas.height * 0.5);
+        this.axes.x.end[0] = Math.round(canvas.width * 0.8);
+        this.axes.x.end[1] = Math.round(canvas.height * 0.5);
+        this.axes.y.start[0] = Math.round(canvas.width * 0.2);
+        this.axes.y.start[1] = Math.round(canvas.height * 0.2);
+        this.axes.y.end[0] = Math.round(canvas.width * 0.2);
+        this.axes.y.end[1] = Math.round(canvas.height * 0.8);
+    }
+
+    setColorPick(value) {
+        this.parsing.color = value;
+    }
+
+    setColorDifference(value) {
+        this.parsing.colorDifference = value;
+    }
+
+    setPointEraser(value) {
+        this.parsing.eraser = value;
+    }
+
+    setParsePoints(value) {
+        this.parsing.points = value;
+    }
+
+    setResultPoints(value) {
+        this.result.points = value;
     }
 
     setDefaultColor() {
@@ -91,15 +143,16 @@ class State {
 
     static createDefaultAxes() {
         return {
-            x: this.createDefaultAxis([0.2, 0.5], [0.8, 0.5], [0, 100]),
-            y: this.createDefaultAxis([0.2, 0.2], [0.2, 0.8], [0, 100])
+            x: this.createDefaultAxis([0, 100]),
+            y: this.createDefaultAxis( [0, 100])
         }
     }
 
     static createDefaultParsing() {
         return {
-            color: null,
-            colorDifference: 20,
+            color: '#563d7c',
+            colorDifference: 100,
+            eraser: 100,
             points: [[10, 10], [50, 50], [500, 500], [510, 500], [520, 500], [530, 500]]
         }
     }
@@ -108,11 +161,11 @@ class State {
         return {pixels: [], pencil: 101, eraser: 101, resultImage: {base64: null, id: null}}
     }
 
-    static createDefaultAxis(start, end, value) {
+    static createDefaultAxis(value) {
         return {
             type: AXIS_LINEAR,
-            start: start,
-            end: end,
+            start: [NaN, NaN],
+            end: [NaN, NaN],
             value: value,
             enableUnits: false,
             unitType: null,
