@@ -26,8 +26,53 @@ class State {
         }
     }
 
+    setDefaultColors() {
+        let def = State.createDefaultColors();
+        this.colors.contrast = def.contrast;
+        this.colors.brightness = def.brightness;
+        this.colors.saturation = def.saturation;
+        this.colors.invert = def.invert;
+        this.colors.image = def.image;
+    }
+
+    setDefaultSelections() {
+        let def = State.createDefaultSelection();
+        this.selection.pencil = def.pencil;
+        this.selection.eraser = def.eraser;
+        this.selection.selectImage = def.selectImage;
+        this.selection.resultImage = def.resultImage;
+    }
+
+    setDefaultParsing() {
+        let def = State.createDefaultParsing();
+        this.parsing.color = def.color;
+        this.parsing.colorDifference = def.colorDifference;
+        this.parsing.eraser = def.eraser;
+        this.parsing.points = def.points;
+    }
+
+    setDefaultAxes() {
+        this.axes = State.createDefaultAxes();
+    }
+
+    setStage(value) {
+        this.stage = value;
+    }
+
+    setImage(image) {
+        this.image = image;
+    }
+
+    setColoredImage(coloredImage) {
+        this.colors.image = coloredImage;
+    }
+
     setContrast(value) {
         this.colors.contrast = value;
+    }
+
+    setSelectImage(image) {
+        this.selection.selectImage = image;
     }
 
 
@@ -138,7 +183,7 @@ class State {
     }
 
     static createDefaultColors() {
-        return {contrast: 100, brightness: 100, saturation: 100, invert:false}
+        return {contrast: 100, brightness: 100, saturation: 100, invert:false, image: null}
     }
 
     static createDefaultAxes() {
@@ -153,12 +198,12 @@ class State {
             color: '#563d7c',
             colorDifference: 100,
             eraser: 100,
-            points: [[10, 10], [50, 50], [500, 500], [510, 500], [520, 500], [530, 500]]
+            points: []
         }
     }
 
     static createDefaultSelection() {
-        return {pixels: [], pencil: 101, eraser: 101, resultImage: {base64: null, id: null}}
+        return {pencil: 101, eraser: 101, selectImage: null, resultImage: {base64: null, id: null}};
     }
 
     static createDefaultAxis(value) {
@@ -178,8 +223,8 @@ class State {
     }
 
     static createCorners() {
-        let x = 0.5;
-        let y = 0.5;
+        let x = 0.4;
+        let y = 0.4;
         let delta = 0.2;
         return [[x, y], [x, y + delta], [x + delta, y + delta], [x + delta, y]];
     }

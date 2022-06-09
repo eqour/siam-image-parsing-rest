@@ -1,4 +1,4 @@
-import ImageRender from './canvas/Canvas2.js';
+import ImageRender from './canvas/Canvas.js';
 import DrawCanvas from './canvas/DrawCanvas.js';
 import FileHelper from './helper/FileHelper.js';
 import ImageHelper from './helper/ImageHelper.js';
@@ -12,7 +12,6 @@ const IMAGE_DATA_PREFIX = 'data:image/png;base64,';
 
 class App {
     constructor(props) {
-        this.canvas = null;
         this.state = new State();
         let imageCanvas = document.getElementById('image-render');
         this.magnifier = this.magnifier = new Magnifier(document.getElementById('magnifier'), document.getElementById('coord-x'), document.getElementById('coord-y'));
@@ -27,42 +26,9 @@ class App {
         $('#btn-next').click(() => this.stagesPanel.nextStage());
         this.initFileDropper();
 
-        const self = this;
-        $('#rotation-range').on('input', (e) => {
-            $('#rotation-text').val(e.currentTarget.value);
-            const istate = self.state.transform;
-            istate.rotation = parseInt(e.currentTarget.value);
-            self.imageRender.renderFraming();
-        });
-
-        $('#rotation-text').on('input', (e) => {
-            $('#rotation-range').val(e.currentTarget.value);
-            const istate = self.state.transform;
-            istate.rotation = parseInt(e.currentTarget.value);
-            self.imageRender.renderFraming();
-        });
-
-        $('#flip-horizontal').click((e) => {
-            $(e.currentTarget).toggleClass('item-active');
-            const istate = self.state.transform;
-            istate.flipX = !istate.flipX;
-            self.imageRender.renderFraming();
-        });
-
-        $('#flip-vertical').click((e) => {
-            $(e.currentTarget).toggleClass('item-active');
-            const istate = self.state.transform;
-            istate.flipY = !istate.flipY;
-            self.imageRender.renderFraming();
-        });
-
         $.ajaxSetup({
             contentType: 'application/json; charset=UTF-8'
         });
-
-        this.initBtns();
-
-        console.log('app initialized');
     }
 
     initFileDropper() {
@@ -99,27 +65,40 @@ class App {
     nextStageHandler(event) {
         const stageId = event.id;
         let self = this;
+        self.state.setStage(stageId);
         console.log(stageId);
         if (stageId === 1) {
             this.changeToolbar('tool-group-0', true);
             $('#drop-area').addClass('hidden');
             $('#canvas-wrapper').removeClass('hidden');
             $('#sidebar').removeClass('hidden');
+            this.initStageView1();
+            this.disableAllBtnsAndEnableOne('#tool-group-0 .tabs', 'tool-group-0-btn-0');
             this.imageRender.setImage(this.state.image);
             this.drawCanvas.initDrawRectangleSelect();
         } else if (stageId === 2) {
+            this.initStageView2();
             this.changeToolbar('tool-group-1', true);
+            this.state.setDefaultTransform();
+            this.imageRender.setImage(this.state.image);
             this.drawCanvas.initDisableDraw();
         } else if (stageId === 3) {
+            this.initStageView3();
+            this.state.setColoredImage(this.imageRender.canvas.toDataURL());
             this.changeToolbar('tool-group-2', true);
-            document.querySelector('#tool-group-2 .item-btn.item-active').click();
+            this.drawCanvas.initDrawRectangles(true);
         } else if (stageId === 4) {
+            this.sendImageForParsing();
+            this.initStageView4();
             this.changeToolbar('tool-group-3', true);
             this.drawCanvas.initDrawAxes();
         } else if (stageId === 5) {
+            this.initStageView5();
             this.changeToolbar('tool-group-4', true);
+            this.drawCanvas.initDrawPoints();
         } else if (stageId === 6) {
             this.changeToolbar('tool-group-5', false);
+            this.initStageView6();
             let body = {
                 points: self.state.parsing.points,
                 srcSX: self.state.axes.x.start[0],
@@ -141,21 +120,44 @@ class App {
 
     prevStageHandler(event) {
         const stageId = event.id;
+        let self = this;
+        this.state.setStage(stageId);
+        console.log(stageId);
 
         if (stageId === 0) {
             $('#drop-area').removeClass('hidden');
             $('#canvas-wrapper').addClass('hidden');
             $('#sidebar').addClass('hidden');
-        }
-
-        if (stageId === 1) {
-            this.canvas.restoreImage();
-            this.canvas.render();
+            this.state.setDefaultTransform();
+            this.state.setImage(null);
+        } else if (stageId === 1) {
+            this.state.setDefaultColors();
+            this.disableAllBtnsAndEnableOne('#tool-group-0 .tabs', 'tool-group-0-btn-0');
+            this.initStageView1();
+            this.changeToolbar('tool-group-0', true);
+            this.imageRender.setImage(this.state.image);
+            this.drawCanvas.initDrawRectangleSelect();
+        } else if (stageId === 2) {
+            this.state.setDefaultSelections();
+            this.initStageView2();
+            this.changeToolbar('tool-group-1', true);
+            this.imageRender.setImage(this.state.image, function () {self.imageRender.renderColors()});
+            this.drawCanvas.initDisableDraw();
+        } else if (stageId === 3) {
+            this.state.setDefaultAxes();
+            this.initStageView3();
+            this.changeToolbar('tool-group-2', true);
+            this.drawCanvas.initDrawRectangles(true);
+        } else if (stageId === 4) {
+            this.state.setDefaultParsing();
+            this.initStageView4();
+            this.changeToolbar('tool-group-3', true);
+            this.drawCanvas.initDrawAxes();
         }
     }
 
-    initBtns() {
-        // stage 1
+    initStageView1() {
+        this.drawCanvas.canvas.classList.remove('draw-selection');
         let imgEditBtn = document.getElementById('img-edit-btn');
         let self = this;
         imgEditBtn.onclick = function () {
@@ -180,14 +182,57 @@ class App {
         this.togglePanel(document.getElementById('tool-group-0-btn-0'), 'tool-group-0-subs', 'tool-group-0-0', '#tool-group-0 .tabs', function (){
             self.drawCanvas.initDrawRectangleSelect();
             self.state.setDefaultTransform();
+            self.initStageView1();
             self.imageRender.renderFraming();
         });
         this.togglePanel(document.getElementById('tool-group-0-btn-1'), 'tool-group-0-subs', 'tool-group-0-1', '#tool-group-0 .tabs', function (){
             self.drawCanvas.initDrawPolygonSelect();
             self.state.setDefaultTransform();
+            self.initStageView1();
             self.imageRender.renderFraming();
         });
-        // stage 2
+        $('#rotation-range').on('input', (e) => {
+            $('#rotation-text').val(e.currentTarget.value);
+            const istate = self.state.transform;
+            istate.rotation = parseInt(e.currentTarget.value);
+            self.imageRender.renderFraming();
+        });
+
+        $('#rotation-text').on('input', (e) => {
+            $('#rotation-range').val(e.currentTarget.value);
+            const istate = self.state.transform;
+            istate.rotation = parseInt(e.currentTarget.value);
+            self.imageRender.renderFraming();
+        });
+
+        if (this.state.transform.flipX) {
+            document.getElementById('flip-horizontal').classList.add('item-active');
+        } else {
+            document.getElementById('flip-horizontal').classList.remove('item-active');
+        }
+        if (this.state.transform.flipY) {
+            document.getElementById('flip-vertical').classList.add('item-active');
+        } else {
+            document.getElementById('flip-vertical').classList.remove('item-active');
+        }
+        $('#flip-horizontal').click((e) => {
+            $(e.currentTarget).toggleClass('item-active');
+            const istate = self.state.transform;
+            istate.flipX = !istate.flipX;
+            self.imageRender.renderFraming();
+        });
+
+        $('#flip-vertical').click((e) => {
+            $(e.currentTarget).toggleClass('item-active');
+            const istate = self.state.transform;
+            istate.flipY = !istate.flipY;
+            self.imageRender.renderFraming();
+        });
+    }
+
+    initStageView2() {
+        this.drawCanvas.canvas.classList.remove('draw-selection');
+        let self = this;
         let contrast = document.getElementById('contrast-range');
         contrast.value = this.state.colors.contrast;
         contrast.oninput = function (e) {
@@ -195,24 +240,30 @@ class App {
             self.imageRender.renderColors();
         }
         let brightness = document.getElementById('brightness-range');
-        brightness.value = this.state.colors.contrast;
+        brightness.value = this.state.colors.brightness;
         brightness.oninput = function (e) {
             self.state.setBrightness(parseInt(brightness.value));
             self.imageRender.renderColors();
         }
 
         let saturation = document.getElementById('saturation-range');
-        saturation.value = this.state.colors.contrast;
+        saturation.value = this.state.colors.saturation;
         saturation.oninput = function (e) {
             self.state.setSaturation(parseInt(saturation.value));
             self.imageRender.renderColors();
         }
         let invert = document.getElementById('invert-cb');
+        invert.checked = self.state.colors.invert;
         invert.onchange = function () {
             self.state.setInvert(invert.checked);
             self.imageRender.renderColors();
         }
-        // stage 3
+    }
+
+    initStageView3() {
+        this.drawCanvas.canvas.classList.add('draw-selection');
+        this.disableAllBtnsAndEnableOne('#tool-group-2 .tabs', 'add-rect-btn');
+        let self = this;
         let areaSelectBtnsParent = document.querySelector('#tool-group-2 .tabs');
         this.toggleAreaSelectBtns(document.getElementById('add-rect-btn'), areaSelectBtnsParent, function () {
             self.drawCanvas.initDrawRectangles(true);
@@ -234,21 +285,11 @@ class App {
         eraserRange.oninput = function () {
             self.state.setEraser(parseInt(eraserRange.value));
         }
-        document.getElementById('temp').onclick = function () {
-            let canv = ImageHelper.cutByImage(self.imageRender.canvas, self.drawCanvas.canvas);
-            let base64Image = canv.toDataURL();
-            ParsingAPI.sendRequest('/api/image',
-                JSON.stringify({
-                    image: FileHelper.parseDataURL(base64Image).data
-                })
-            ).then((result) => {
-                    self.state.setResultImage({base64: base64Image, id: result.imageId});
-                });
-            var dataURL = canv.toDataURL("image/png");
-            var newTab = window.open('about:blank','image from canvas');
-            newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
-        }
-        // stage 4
+    }
+
+    initStageView4() {
+        this.drawCanvas.canvas.classList.remove('draw-selection');
+        let self = this;
         let xAxisSelect = document.getElementById('X-axis-type');
         xAxisSelect.value = this.state.axes.x.type;
         xAxisSelect.oninput = function () {
@@ -279,11 +320,16 @@ class App {
         yAxisEnd.oninput = function () {
             self.state.setYAxisValueEnd(parseFloat(yAxisEnd.value));
         }
-        // stage 5
+    }
+
+    initStageView5() {
+        this.drawCanvas.canvas.classList.remove('draw-selection');
+        this.disableAllBtnsAndEnableOne('#tool-group-4 .tabs', 'point-edit-btn');
+        let self = this;
         let editPointBtnsParent = document.querySelector('#tool-group-4 .tabs');
-        this.toggleAreaSelectBtns(document.getElementById('point-select-btn'), editPointBtnsParent, function () {
-            self.drawCanvas.initDrawPoints();
-        });
+        // this.toggleAreaSelectBtns(document.getElementById('point-select-btn'), editPointBtnsParent, function () {
+        //     self.drawCanvas.initDrawPoints();
+        // });
         this.toggleAreaSelectBtns(document.getElementById('point-edit-btn'), editPointBtnsParent, function () {
             self.drawCanvas.initDrawPoints();
         });
@@ -325,9 +371,7 @@ class App {
                 colorDifference: self.state.parsing.colorDifference,
                 imageId: self.state.selection.resultImage.id
             };
-            console.log(body);
             ParsingAPI.sendRequest('/api/color/entire', JSON.stringify(body)).then((result) => {
-                console.log(result);
                 self.state.setParsePoints(result.pixels);
                 self.drawCanvas.drawAction();
             });
@@ -340,20 +384,59 @@ class App {
                     points: self.state.parsing.points
                 })
             ).then((result) => {
-                console.log(result);
                 self.state.setParsePoints(result.points);
                 self.drawCanvas.drawAction();
             });
         }
+    }
 
-        document.getElementById('kek').onclick = function () {
-            let p = self.state.result.points;
-            console.log(p);
-            for (let i = 0; i < p.length; i++) {
-                console.log(p[i][0] + '\t' + p[i][1]);
-            }
+    initStageView6() {
+        let self = this;
+        document.getElementById('stageBtnPanel').classList.add('d-none');
+        document.getElementById('resultBtnPanel').classList.remove('d-none');
+        document.getElementById('saveToBuffer').onclick = function () {
+            navigator.clipboard.writeText(self.prepareDataForShare());
         }
+        document.getElementById('saveTxt').onclick = function () {
+            let blob = new Blob([self.prepareDataForShare()], {type: 'text/plain'});
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'data.txt';
+            link.click();
+        }
+    }
 
+    prepareDataForShare() {
+        let ans = document.getElementById('headX').innerText + '\t' + document.getElementById('headY').innerText + '\n';
+        let points = this.state.result.points;
+        for (let i = 0; i < points.length; i++) {
+            ans += points[i][0] + '\t' + points[i][1] + '\n';
+        }
+        return ans;
+    }
+
+    disableAllBtnsAndEnableOne(query, enabledBtnId) {
+        let btns = document.querySelector(query).children;
+        for (let i = 0; i < btns.length; i++) {
+            btns[i].classList.remove('item-active');
+        }
+        document.getElementById(enabledBtnId).classList.add('item-active');
+    }
+
+    sendImageForParsing() {
+        let self = this;
+        let canv = ImageHelper.cutByImage(self.imageRender.canvas, self.drawCanvas.canvas);
+        let base64Image = canv.toDataURL();
+        ParsingAPI.sendRequest('/api/image',
+            JSON.stringify({
+                image: FileHelper.parseDataURL(base64Image).data
+            })
+        ).then((result) => {
+            self.state.setResultImage({base64: base64Image, id: result.imageId});
+        });
+        // var dataURL = canv.toDataURL("image/png");
+        // var newTab = window.open('about:blank','image from canvas');
+        // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
     }
 
     updateResultTable() {

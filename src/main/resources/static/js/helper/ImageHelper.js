@@ -48,6 +48,9 @@ class ImageHelper {
     }
 
     static cutByImage(canvasSource, canvasArea) {
+        if (ImageHelper.isCanvasBlank(canvasArea)) {
+            return canvasSource;
+        }
         let mask = document.createElement('canvas');
         let maskContext = mask.getContext('2d');
         mask.width = canvasSource.width;
@@ -69,6 +72,14 @@ class ImageHelper {
             g: parseInt(result[2], 16),
             b: parseInt(result[3], 16)
         } : null;
+    }
+
+    static isCanvasBlank(canvas) {
+        const context = canvas.getContext('2d');
+        const pixelBuffer = new Uint32Array(
+            context.getImageData(0, 0, canvas.width, canvas.height).data.buffer
+        );
+        return !pixelBuffer.some(color => color !== 0);
     }
 }
 

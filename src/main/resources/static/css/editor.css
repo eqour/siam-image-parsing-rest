@@ -225,7 +225,7 @@ body {
 
 .tool-scrollable.show-table {
     top: 0;
-    height: calc(100vh - 188px);
+    height: calc(100vh - 133px);
 }
 
 .tool-scrollable::-webkit-scrollbar {

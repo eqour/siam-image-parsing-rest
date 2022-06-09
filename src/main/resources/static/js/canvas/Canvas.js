@@ -7,7 +7,7 @@ class ImageRender {
         this.ctx = this.canvas.getContext('2d');
     }
 
-    async setImage(src) {
+    async setImage(src, action) {
         const image = new Image();
         const self = this;
         return new Promise((reslove, reject) => {
@@ -21,6 +21,9 @@ class ImageRender {
                 };
                 self.setImageState(ImageRender.defaultImageState());
                 self.renderFraming();
+                if (action != null) {
+                    action();
+                }
                 reslove();
             }
             image.src = src;

@@ -8,7 +8,6 @@ class DrawCanvas {
         this.ctx = this.canvas.getContext('2d');
         this.state = state;
         this.magnifier = magnifier;
-        this.selectCanvas = null;
         this.bindWithMagnifier();
         this.drawAction = null;
     }
@@ -106,14 +105,13 @@ class DrawCanvas {
 
     initDrawRectangles(isAdd) {
         this.clear();
-        if (this.selectCanvas == null) {
-            this.selectCanvas = ImageHelper.cloneCanvas(this.canvas);
+        if (this.state.selection.selectImage == null) {
+            this.state.setSelectImage(ImageHelper.cloneCanvas(this.canvas));
         }
-        this.canvas.classList.add('draw-selection');
         this.drawAction = function () {
             self.clear();
             this.ctx.globalCompositeOperation = 'source-over';
-            self.ctx.drawImage(self.selectCanvas, 0, 0);
+            self.ctx.drawImage(self.state.selection.selectImage, 0, 0);
         };
         let self = this;
         let isDown = false;
@@ -125,7 +123,7 @@ class DrawCanvas {
         }
         this.canvas.onmouseup = function (e) {
             isDown = false;
-            self.selectCanvas = ImageHelper.cloneCanvas(self.canvas);
+            self.state.setSelectImage(ImageHelper.cloneCanvas(self.canvas));
         }
         this.canvas.onmouseleave = function () {
             isDown = false;
@@ -149,15 +147,14 @@ class DrawCanvas {
         this.clear();
         let self = this;
         let isDown = false;
-        if (this.selectCanvas == null) {
-            this.selectCanvas = ImageHelper.cloneCanvas(this.canvas);
+        if (this.state.selection.selectImage == null) {
+            this.state.setSelectImage(ImageHelper.cloneCanvas(this.canvas));
         }
-        this.canvas.classList.add('draw-selection');
         let current = null;
         this.drawAction = function () {
             self.clear();
             this.ctx.globalCompositeOperation = 'source-over';
-            self.ctx.drawImage(self.selectCanvas, 0, 0);
+            self.ctx.drawImage(self.state.selection.selectImage, 0, 0);
         };
 
         let pos = null;
@@ -167,7 +164,7 @@ class DrawCanvas {
         }
         this.canvas.onmouseup = function (e) {
             isDown = false;
-            self.selectCanvas = ImageHelper.cloneCanvas(self.canvas);
+            self.state.setSelectImage(ImageHelper.cloneCanvas(self.canvas));
         }
         this.canvas.onmouseleave = function () {
             isDown = false;
@@ -199,6 +196,7 @@ class DrawCanvas {
         }
         this.drawAction = function () {
             this.clear();
+            this.ctx.globalCompositeOperation = 'source-over';
             let axisY = this.convertImagePixelToDrawPixelAll([this.state.axes.y.start, this.state.axes.y.end]);
             let axisX = this.convertImagePixelToDrawPixelAll([this.state.axes.x.start, this.state.axes.x.end]);
             this.drawLine(axisY, '#1ABF21');
@@ -225,6 +223,15 @@ class DrawCanvas {
                 let pixel = self.convertDrawPixelToImagePixel([e.offsetX, e.offsetY]);
                 selected[1][0] = pixel[0];
                 selected[1][1] = pixel[1];
+                if (selected[0] === 0) {
+                    self.state.axes.x.end[1] = pixel[1];
+                } else if (selected[0] === 1) {
+                    self.state.axes.x.start[1] = pixel[1];
+                } else if (selected[0] === 2) {
+                    self.state.axes.y.end[0] = pixel[0];
+                } else if (selected[0] === 3) {
+                    self.state.axes.y.start[0] = pixel[0];
+                }
                 self.drawAction();
             }
         }
@@ -233,8 +240,8 @@ class DrawCanvas {
     }
 
     initDrawPoints() {
-        let points = this.state.parsing.points;
         this.drawAction = function () {
+            let points = this.state.parsing.points;
             this.clear();
             let converted = [];
             for (let i = 0; i < points.length; i++) {
@@ -246,6 +253,7 @@ class DrawCanvas {
         let selected = null;
         let isDown = false;
         this.canvas.onmousedown = function (e) {
+            let points = this.state.parsing.points;
             isDown = true;
             selected = self.findElement(points, e.offsetX, e.offsetY);
         }
