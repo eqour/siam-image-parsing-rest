@@ -7,6 +7,7 @@ import Magnifier from './Magnifier.js';
 import StagesPanel from './StagesPanel.js';
 import ParsingAPI from './helper/ParsingAPI.js';
 import TextHelper from './helper/TextHelper.js';
+import ResizeSensor from './helper/ResizeSensor.js';
 
 const IMAGE_DATA_PREFIX = 'data:image/png;base64,';
 
@@ -25,6 +26,11 @@ class App {
         $('#btn-prev').click(() => this.stagesPanel.prevStage());
         $('#btn-next').click(() => this.stagesPanel.nextStage());
         this.initFileDropper();
+        this.initCanvasResize();
+
+        window.onbeforeunload = function() {
+            return "Возможно, внесенные изменения не сохранятся";
+        };
 
         $.ajaxSetup({
             contentType: 'application/json; charset=UTF-8'
@@ -66,7 +72,6 @@ class App {
         const stageId = event.id;
         let self = this;
         self.state.setStage(stageId);
-        console.log(stageId);
         if (stageId === 1) {
             this.changeToolbar('tool-group-0', true);
             $('#drop-area').addClass('hidden');
@@ -122,7 +127,6 @@ class App {
         const stageId = event.id;
         let self = this;
         this.state.setStage(stageId);
-        console.log(stageId);
 
         if (stageId === 0) {
             $('#drop-area').removeClass('hidden');
@@ -157,6 +161,7 @@ class App {
     }
 
     initStageView1() {
+        this.toggleStageDescription('descr-stage-1');
         this.drawCanvas.canvas.classList.remove('draw-selection');
         let imgEditBtn = document.getElementById('img-edit-btn');
         let self = this;
@@ -231,6 +236,7 @@ class App {
     }
 
     initStageView2() {
+        this.toggleStageDescription('descr-stage-2');
         this.drawCanvas.canvas.classList.remove('draw-selection');
         let self = this;
         let contrast = document.getElementById('contrast-range');
@@ -261,6 +267,7 @@ class App {
     }
 
     initStageView3() {
+        this.toggleStageDescription('descr-stage-3');
         this.drawCanvas.canvas.classList.add('draw-selection');
         this.disableAllBtnsAndEnableOne('#tool-group-2 .tabs', 'add-rect-btn');
         let self = this;
@@ -288,6 +295,7 @@ class App {
     }
 
     initStageView4() {
+        this.toggleStageDescription('descr-stage-4');
         this.drawCanvas.canvas.classList.remove('draw-selection');
         let self = this;
         let xAxisSelect = document.getElementById('X-axis-type');
@@ -323,6 +331,7 @@ class App {
     }
 
     initStageView5() {
+        this.toggleStageDescription('descr-stage-5');
         this.drawCanvas.canvas.classList.remove('draw-selection');
         this.disableAllBtnsAndEnableOne('#tool-group-4 .tabs', 'point-edit-btn');
         let self = this;
@@ -334,7 +343,7 @@ class App {
             self.drawCanvas.initDrawPoints();
         });
         this.toggleAreaSelectBtns(document.getElementById('point-eraser-btn'), editPointBtnsParent, function () {
-            self.drawCanvas.initDrawPoints();
+            self.drawCanvas.initDeletePoints();
         });
         let colorPick = document.getElementById('colorInput');
         colorPick.value = self.state.parsing.color;
@@ -391,6 +400,7 @@ class App {
     }
 
     initStageView6() {
+        document.getElementById('stage-description').classList.add('d-none');
         let self = this;
         document.getElementById('stageBtnPanel').classList.add('d-none');
         document.getElementById('resultBtnPanel').classList.remove('d-none');
@@ -413,6 +423,14 @@ class App {
             ans += points[i][0] + '\t' + points[i][1] + '\n';
         }
         return ans;
+    }
+
+    toggleStageDescription(currentDescrId) {
+        let descrs = document.getElementById('stage-description').children;
+        for (let i = 0; i < descrs.length; i++) {
+            descrs[i].classList.add('d-none');
+        }
+        document.getElementById(currentDescrId).classList.remove('d-none');
     }
 
     disableAllBtnsAndEnableOne(query, enabledBtnId) {
@@ -518,6 +536,14 @@ class App {
         } else {
             flip.classList.remove('item-active');
         }
+    }
+
+    initCanvasResize() {
+        let self = this;
+        let canvasWrapper = document.getElementById('canvas-wrapper');
+        new ResizeSensor(canvasWrapper, function () {
+            self.imageRender.resizeCanvasStyle();
+        });
     }
 }
 

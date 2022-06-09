@@ -10,17 +10,19 @@ class DrawCanvas {
         this.magnifier = magnifier;
         this.bindWithMagnifier();
         this.drawAction = null;
+        this.magnifyOpacity = 1.0;
     }
 
     bindWithMagnifier() {
         let self = this;
         this.canvas.addEventListener('mousemove', function (e) {
             let p = self.convertPointToImageCanvas([e.offsetX, e.offsetY]);
-            self.magnifier.magnify(self.imageCanvas, self.canvas, p[0], p[1], e.offsetX, e.offsetY);
+            self.magnifier.magnify(self.imageCanvas, self.canvas, p[0], p[1], e.offsetX, e.offsetY, self.magnifyOpacity);
         })
     }
 
     initDrawRectangleSelect() {
+        this.magnifyOpacity = 1.0;
         let points = this.state.transform.rectangle;
         this.drawAction = function () {
             this.drawPolygone(points);
@@ -65,6 +67,7 @@ class DrawCanvas {
     }
 
     initDrawPolygonSelect() {
+        this.magnifyOpacity = 1.0;
         let points = this.state.transform.perspective;
         this.drawAction = function () {
             this.drawPolygone(points);
@@ -104,6 +107,7 @@ class DrawCanvas {
     }
 
     initDrawRectangles(isAdd) {
+        this.magnifyOpacity = 0.5;
         this.clear();
         if (this.state.selection.selectImage == null) {
             this.state.setSelectImage(ImageHelper.cloneCanvas(this.canvas));
@@ -144,6 +148,7 @@ class DrawCanvas {
     }
 
     initDrawPencil(isAdd) {
+        this.magnifyOpacity = 0.5;
         this.clear();
         let self = this;
         let isDown = false;
@@ -188,6 +193,7 @@ class DrawCanvas {
     }
 
     initDrawAxes() {
+        this.magnifyOpacity = 1.0;
         function checkPoint(point) {
             return isNaN(point[0]) || isNaN(point[1]);
         }
@@ -240,6 +246,7 @@ class DrawCanvas {
     }
 
     initDrawPoints() {
+        this.magnifyOpacity = 1.0;
         this.drawAction = function () {
             let points = this.state.parsing.points;
             this.clear();
@@ -250,31 +257,64 @@ class DrawCanvas {
             this.drawCircles(converted, '#FFFFFF', '#000000', 5);
         };
         let self = this;
-        let selected = null;
+        this.canvas.onmousedown = function (e) {
+            self.state.parsing.points.push(self.convertDrawPixelToImagePixel([e.offsetX, e.offsetY]));
+            self.drawAction();
+        }
+        this.canvas.onmouseup = function (e) {}
+        this.canvas.onmouseleave = function () {}
+        this.canvas.onmousemove = function (e) {}
+        this.clear();
+        this.drawAction();
+    }
+
+    initDeletePoints() {
+        this.magnifyOpacity = 1.0;
+        let self = this;
+        this.drawAction = function () {
+            let points = this.state.parsing.points;
+            this.clear();
+            let converted = [];
+            for (let i = 0; i < points.length; i++) {
+                converted.push(this.convertImagePixelToDrawPixel(points[i]));
+            }
+            this.drawCircles(converted, '#FFFFFF', '#000000', 5);
+        };
         let isDown = false;
         this.canvas.onmousedown = function (e) {
-            let points = this.state.parsing.points;
             isDown = true;
-            selected = self.findElement(points, e.offsetX, e.offsetY);
+            self.state.setParsingPoints(self.removePointsByCircle(self.state.parsing.points, self.state.parsing.eraser, e.offsetX, e.offsetY));
+            self.drawAction();
         }
         this.canvas.onmouseup = function (e) {
             isDown = false;
-            selected = null;
         }
         this.canvas.onmouseleave = function () {
             isDown = false;
-            selected = null;
+            self.drawAction();
         }
         this.canvas.onmousemove = function (e) {
-            if (isDown && selected != null) {
-                let pixel = self.convertPixelToRelativePoint([e.offsetX, e.offsetY]);
-                selected[1][0] = pixel[0];
-                selected[1][1] = pixel[1];
+            // self.clear();
+            // self.drawCircles([[e.offsetX, e.offsetY]],'transparent','#000000', self.state.parsing.eraser);
+            if (isDown) {
+                self.state.setParsingPoints(self.removePointsByCircle(self.state.parsing.points, self.state.parsing.eraser, e.offsetX, e.offsetY));
                 self.drawAction();
             }
         }
         this.clear();
         this.drawAction();
+    }
+
+    removePointsByCircle(points, radius, x ,y) {
+        let allWithoutInCircle = [];
+        for (let i = 0; i < points.length; i++) {
+            let converted = this.convertImagePixelToDrawPixel(points[i]);
+            let d = this.distance(x, y, converted[0], converted[1]);
+            if (d > radius) {
+                allWithoutInCircle.push(points[i]);
+            }
+        }
+        return allWithoutInCircle;
     }
 
     findElement(points, x, y) {

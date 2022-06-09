@@ -54,7 +54,11 @@
             </div>
             <div class="tool-scrollable">
                 <div id="stage-description">
-                    <p>Кадрируйте и откорректируйте изображение для более точной работы с ним</p>
+                    <p id="descr-stage-1" class="d-none">Кадрируйте и откорректируйте изображение для более точной работы с ним</p>
+                    <p id="descr-stage-2" class="d-none">Откорректируйте контраст, цвета и яркость картинки для удобной работы с ней</p>
+                    <p id="descr-stage-3" class="d-none">Выделите область для снятия данных (точки будут браться только из красной области)</p>
+                    <p id="descr-stage-4" class="d-none">Впишите значения точек отрезков координатной системы</p>
+                    <p id="descr-stage-5" class="d-none">Задайте параметры определения точек и отредактируйте результат</p>
                 </div>
                 <div class="toolbar">
                     <div id="tool-group-0">
@@ -122,9 +126,6 @@
                         <div class="tool-group">
                             <p>Размер ластика</p>
                             <input id="eraser-range" type="range" min="1" max="201" step="1">
-                        </div>
-                        <div class="tool-group">
-                            <button id="temp">Test</button>
                         </div>
                     </div>
                     <div id="tool-group-3">

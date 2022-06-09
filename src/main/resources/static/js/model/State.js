@@ -175,6 +175,10 @@ class State {
         this.result.points = value;
     }
 
+    setParsingPoints(points) {
+        this.parsing.points = points;
+    }
+
     setDefaultColor() {
         this.colors.contrast = 100;
         this.colors.brightness = 100;
