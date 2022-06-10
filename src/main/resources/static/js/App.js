@@ -38,17 +38,17 @@ class App {
     }
 
     initFileDropper() {
-        let dragArea = document.getElementById('drop-area');
-        dragArea.ondragenter = function (e) {e.preventDefault()};
-        dragArea.ondragover = function (e) {e.preventDefault()};
-        dragArea.ondrop = function (e) {dropFileHandler(e)};
+        let dropArea = document.getElementById('drop-area');
+        dropArea.ondragenter = function (e) {e.preventDefault()};
+        dropArea.ondragover = function (e) {e.preventDefault()};
+        dropArea.ondrop = function (e) {dropFileHandler(e)};
         let fileInput = document.getElementById('file-input');
         fileInput.onchange = function (e) {inputFileHandler(e)};
         let app = this;
 
         function dropFileHandler(event) {
             event.preventDefault();
-            const file = event.originalEvent.dataTransfer.files[0];
+            const file = event.dataTransfer.files[0];
             if (file !== undefined) {
                 onFileLoad(file);
             }
